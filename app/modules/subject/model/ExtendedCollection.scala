@@ -27,13 +27,13 @@ import modules.user.model.ViewerCombinator
  * [[modules.core.model.Property Properties]] and all available child data.
  *
  * @param collection   Collection head (contains only id and type reference)
- * @param collectibles child [[modules.subject.model.CollectibleHeader CollectibleHeaders]]
+ * @param subjects child [[modules.subject.model.SubjectHeader SubjectHeaders]]
  * @param properties   all Properties of the Collection
- * @param attachments  all attached [[modules.asset.model.Asset Assets]] of the Collection (not of the Collectibles)
+ * @param attachments  all attached [[modules.asset.model.Asset Assets]] of the Collection (not of the Subjects)
  * @param viewers      [[modules.user.model.ViewerCombinator ViewerCombinator]] with Viewer rights
  */
 case class ExtendedCollection(collection: Collection,
-                              collectibles: Seq[CollectibleHeader],
+                              subjects: Seq[SubjectHeader],
                               properties: Seq[Property],
                               attachments: Seq[Asset],
                               viewers: ViewerCombinator,

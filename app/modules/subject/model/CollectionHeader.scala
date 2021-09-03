@@ -26,12 +26,12 @@ import modules.user.model.ViewerCombinator
  * all of its objectified [[modules.core.model.Property Properties]] and some additional child data.
  *
  * @param collection   Collection head (contains only id and type reference)
- * @param collectibles child [[modules.subject.model.CollectibleHeader CollectibleHeaders]]
+ * @param subjects child [[modules.subject.model.SubjectHeader SubjectHeaders]]
  * @param properties   all Properties of the Collection
  * @param viewers      [[modules.user.model.ViewerCombinator ViewerCombinator]] with Viewer rights
  */
 case class CollectionHeader(collection: Collection,
-                            collectibles: Seq[CollectibleHeader],
+                            subjects: Seq[SubjectHeader],
                             properties: Seq[Property],
                             viewers: ViewerCombinator,
                             entityType: Option[EntityType])

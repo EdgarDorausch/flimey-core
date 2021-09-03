@@ -21,8 +21,8 @@ package modules.subject.model
 import java.sql.Timestamp
 
 /**
- * A Collection represents the accumulation of several [[modules.subject.model.Collectible Collectibles]].
- * In other words, a Collection is a Collectible tree node.
+ * A Collection represents the accumulation of several [[modules.subject.model.Subject Subjects]].
+ * In other words, a Collection is a Subject tree node.
  * <p> Has a repository representation.
  *
  * @param id       unique identifier (primary key)

@@ -16,22 +16,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  * */
 
-package modules.subject.repository
+package modules.subject.model
 
-import java.sql.Timestamp
+import modules.core.model.{EntityType, Property}
+import modules.user.model.ViewerCombinator
 
-import modules.subject.model.Collectible
-import slick.jdbc.PostgresProfile.api._
-
-class CollectibleTable(tag: Tag) extends Table[Collectible](tag, "collectible") {
-
-  def id = column[Long]("id", O.PrimaryKey,O.AutoInc)
-  def entityId = column[Long]("entity_id")
-  def collectionId = column[Long]("collection_id")
-  def typeVersionId = column[Long]("type_version_id")
-  def state = column[String]("state")
-  def created = column[Timestamp]("created")
-
-  override def * = (id, entityId, collectionId, typeVersionId, state, created) <> (Collectible.tupledRaw, Collectible.unapplyToRaw)
-
-}
+/**
+ * The extended [[modules.subject.model.Subject Subject]] class how it is commonly used with all its objectified
+ * [[modules.core.model.Property Properties]].
+ *
+ * @param subject Subject (contains only id and type reference)
+ * @param properties  all Properties of the Subject
+ * @param viewers     [[modules.user.model.ViewerCombinator ViewerCombinator]] of the parent [[modules.subject.model.Collection Collection]]
+ */
+case class ExtendedSubject(subject: Subject, properties: Seq[Property], viewers: ViewerCombinator, entityType: EntityType)

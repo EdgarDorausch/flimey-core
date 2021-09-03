@@ -3,16 +3,16 @@ package modules.subject.model
 import modules.core.model.{ConstraintType, PropertyType}
 
 /**
- * Object with static helper functionality for Constraints used by Collectibles.
+ * Object with static helper functionality for Constraints used by Subjects.
  */
-object CollectibleConstraintSpec {
+object SubjectConstraintSpec {
 
-  val COLLECTIBLE: String = "collectible"
+  val SUBJECT: String = "subject"
 
   /**
    * Sequence of possible parent types.
    */
-  val canDeriveFrom: Seq[String] = Seq[String](COLLECTIBLE)
+  val canDeriveFrom: Seq[String] = Seq[String](SUBJECT)
 
   /**
    * Sequence of possible property data types.

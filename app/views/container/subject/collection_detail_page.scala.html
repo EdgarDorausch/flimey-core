@@ -25,9 +25,9 @@
 @import views.html.components.subject.collection_detail_tile
 @import modules.core.model.EntityType
 @import views.html.forms.core.select_type_form
-@import views.html.components.subject.collectible_block
+@import views.html.components.subject.subject_block
 @(collectionType: ExtendedEntityType,
-        collectibleTypes: Seq[EntityType],
+        subjectTypes: Seq[EntityType],
         collectionData: ExtendedCollection,
         msg: Option[String] = None)(implicit request: RequestHeader, messagesProvider: MessagesProvider, ticket: Ticket)
 
@@ -40,12 +40,12 @@
         @collection_detail_tile(collectionData, collectionType.entityType.value)
     </div>
 }{
-    @navbar_category(Seq("Collectibles"))
+    @navbar_category(Seq("Subjects"))
 }{
     <div class="card shadowed p-ltrb-mini">
-        @select_type_form(None, collectibleTypes, routes.CollectibleController.requestNewCollectibleEditor(collectionData.collection.id), "New")
+        @select_type_form(None, subjectTypes, routes.SubjectController.requestNewSubjectEditor(collectionData.collection.id), "New")
     </div>
     <div class="meta-entity-root">
-        @collectible_block(collectionData.collectibles)
+        @subject_block(collectionData.subjects)
     </div>
 }()

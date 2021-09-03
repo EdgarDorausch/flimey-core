@@ -21,7 +21,7 @@ package modules.subject.repository
 import com.google.inject.Inject
 import modules.core.model.{Constraint, FlimeyEntity, Property}
 import modules.core.repository._
-import modules.subject.model.{Collectible, ExtendedCollectible, SubjectState}
+import modules.subject.model.{Subject, ExtendedSubject, SubjectState}
 import modules.user.model.ViewerCombinator
 import modules.user.repository.GroupTable
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
@@ -33,15 +33,15 @@ import slick.lifted.TableQuery
 import scala.concurrent.{ExecutionContext, Future}
 
 /**
- * Repository to perform database operation on [[modules.subject.model.Collectible Collectible]] and associated entities.
+ * Repository to perform database operation on [[modules.subject.model.Subject Subject]] and associated entities.
  *
  * @param dbConfigProvider injected db configuration
  * @param executionContext implicit ExecutionContext
  */
-class CollectibleRepository @Inject()(@NamedDatabase("flimey_data") protected val dbConfigProvider: DatabaseConfigProvider)(
+class SubjectRepository @Inject()(@NamedDatabase("flimey_data") protected val dbConfigProvider: DatabaseConfigProvider)(
   implicit executionContext: ExecutionContext) extends HasDatabaseConfigProvider[JdbcProfile] {
 
-  val collectibles = TableQuery[CollectibleTable]
+  val subjects = TableQuery[SubjectTable]
   val collections = TableQuery[CollectionTable]
   val entities = TableQuery[FlimeyEntityTable]
   val entityTypes = TableQuery[TypeTable]
@@ -52,41 +52,41 @@ class CollectibleRepository @Inject()(@NamedDatabase("flimey_data") protected va
   val groups = TableQuery[GroupTable]
 
   /**
-   * Add a new [[modules.subject.model.Collectible Collectible]] with [[modules.core.model.Property Properties]] to the db.<br />
-   * The Collectible id and Property ids are set to 0 to enable auto increment.
-   * <p> Only valid Collectible configurations should be added to the repository.
+   * Add a new [[modules.subject.model.Subject Subject]] with [[modules.core.model.Property Properties]] to the db.<br />
+   * The Subject id and Property ids are set to 0 to enable auto increment.
+   * <p> Only valid Subject configurations should be added to the repository.
    *
-   * @param collectible   new Collectible entity
-   * @param newProperties Properties of the Collectible
+   * @param subject   new Subject entity
+   * @param newProperties Properties of the Subject
    * @return Future[Long]
    */
-  def add(collectible: Collectible, newProperties: Seq[Property]): Future[Long] = {
+  def add(subject: Subject, newProperties: Seq[Property]): Future[Long] = {
     db.run((for {
       entityId <- (entities returning entities.map(_.id)) += FlimeyEntity(0)
-      collectibleId <- (collectibles returning collectibles.map(_.id)) +=
-        Collectible(0, entityId, collectible.collectionId, collectible.typeVersionId, collectible.state, collectible.created)
+      subjectId <- (subjects returning subjects.map(_.id)) +=
+        Subject(0, entityId, subject.collectionId, subject.typeVersionId, subject.state, subject.created)
       _ <- properties ++= newProperties.map(p => Property(0, p.key, p.value, entityId))
-    } yield collectibleId).transactionally)
+    } yield subjectId).transactionally)
   }
 
   /**
-   * Delete a [[modules.core.model.EntityType EntityType]] of a [[modules.subject.model.Collectible Collectible]].
+   * Delete a [[modules.core.model.EntityType EntityType]] of a [[modules.subject.model.Subject Subject]].
    * <p> This deletes all subsidiary [[modules.core.model.TypeVersion TypeVersions]] of this type.
    * <p> To ensure integrity, this operation deletes:
    * <p> 1. all [[modules.core.model.Constraint Constraints]] of the type.
-   * <p> 2. all [[modules.core.model.FlimeyEntity Entities (Collectibles)]] which use this type...
+   * <p> 2. all [[modules.core.model.FlimeyEntity Entities (Subjects)]] which use this type...
    * <p> 3. ... with all their [[modules.core.model.Property Properties]].
    *
-   * @param typeId of the EntityType (Collectible Type) to delete
+   * @param typeId of the EntityType (Subject Type) to delete
    * @return Future[Unit]
    */
-  def deleteCollectibleType(typeId: Long): Future[Unit] = {
+  def deleteSubjectType(typeId: Long): Future[Unit] = {
     val typeVersionsToDeleteIds = typeVersions.filter(_.typeId === typeId).map(_.id)
-    val collectiblesOfTypeEntityIds = collectibles.filter(_.typeVersionId in typeVersionsToDeleteIds).map(_.entityId)
+    val subjectsOfTypeEntityIds = subjects.filter(_.typeVersionId in typeVersionsToDeleteIds).map(_.entityId)
     db.run((for {
-      _ <- properties.filter(_.parentId in collectiblesOfTypeEntityIds).delete
-      _ <- collectibles.filter(_.entityId in collectiblesOfTypeEntityIds).delete
-      _ <- entities.filter(_.id in collectiblesOfTypeEntityIds).delete
+      _ <- properties.filter(_.parentId in subjectsOfTypeEntityIds).delete
+      _ <- subjects.filter(_.entityId in subjectsOfTypeEntityIds).delete
+      _ <- entities.filter(_.id in subjectsOfTypeEntityIds).delete
       _ <- constraints.filter(_.typeVersionId in typeVersionsToDeleteIds).delete
       _ <- typeVersions.filter(_.id in typeVersionsToDeleteIds).delete
       _ <- entityTypes.filter(_.id === typeId).delete
@@ -94,95 +94,95 @@ class CollectibleRepository @Inject()(@NamedDatabase("flimey_data") protected va
   }
 
   /**
-   * Delete a [[modules.core.model.TypeVersion TypeVersion]] of a [[modules.subject.model.Collectible Collectible]].
+   * Delete a [[modules.core.model.TypeVersion TypeVersion]] of a [[modules.subject.model.Subject Subject]].
    * <p> To ensure integrity, this operation deletes:
    * <p> 1. all [[modules.core.model.Constraint Constraints]] of the type.
-   * <p> 2. all [[modules.core.model.FlimeyEntity Entities (Collectibles)]] which use this type...
+   * <p> 2. all [[modules.core.model.FlimeyEntity Entities (Subjects)]] which use this type...
    * <p> 3. ... with all their [[modules.core.model.Property Properties]].
    *
    * @param typeVersionId of the TypeVersion to delete
    * @return Future[Unit]
    */
-  def deleteCollectibleTypeVersion(typeVersionId: Long): Future[Unit] = {
-    val collectiblesOfTypeEntityIds = collectibles.filter(_.typeVersionId === typeVersionId).map(_.entityId)
+  def deleteSubjectTypeVersion(typeVersionId: Long): Future[Unit] = {
+    val subjectsOfTypeEntityIds = subjects.filter(_.typeVersionId === typeVersionId).map(_.entityId)
     db.run((for {
-      _ <- properties.filter(_.parentId in collectiblesOfTypeEntityIds).delete
-      _ <- collectibles.filter(_.entityId in collectiblesOfTypeEntityIds).delete
-      _ <- entities.filter(_.id in collectiblesOfTypeEntityIds).delete
+      _ <- properties.filter(_.parentId in subjectsOfTypeEntityIds).delete
+      _ <- subjects.filter(_.entityId in subjectsOfTypeEntityIds).delete
+      _ <- entities.filter(_.id in subjectsOfTypeEntityIds).delete
       _ <- constraints.filter(_.typeVersionId === typeVersionId).delete
       _ <- typeVersions.filter(_.id === typeVersionId).delete
     } yield ()).transactionally)
   }
 
   /**
-   * Delete a [[modules.subject.model.Collectible Collectible]] and all associated data from the db.
+   * Delete a [[modules.subject.model.Subject Subject]] and all associated data from the db.
    *
-   * @param collectible the Collectible to delete
+   * @param subject the Subject to delete
    * @return Future[Unit]
    */
-  def delete(collectible: Collectible): Future[Unit] = {
+  def delete(subject: Subject): Future[Unit] = {
     db.run((for {
-      _ <- properties.filter(_.parentId === collectible.entityId).delete
-      _ <- properties.filter(_.parentId === collectible.entityId).delete
-      _ <- collectibles.filter(_.id === collectible.id).delete
-      _ <- entities.filter(_.id === collectible.entityId).delete
+      _ <- properties.filter(_.parentId === subject.entityId).delete
+      _ <- properties.filter(_.parentId === subject.entityId).delete
+      _ <- subjects.filter(_.id === subject.id).delete
+      _ <- entities.filter(_.id === subject.entityId).delete
     } yield ()).transactionally)
   }
 
   /**
-   * Get the [[modules.subject.model.Collectible Collectible]] of given id.
-   * <p> The [[modules.subject.model.ExtendedCollectible ExtendedCollectible]] with all [[modules.core.model.Property Properties]]
+   * Get the [[modules.subject.model.Subject Subject]] of given id.
+   * <p> The [[modules.subject.model.ExtendedSubject ExtendedSubject]] with all [[modules.core.model.Property Properties]]
    * and [[modules.core.model.Viewer Viewers]] is returned.
    *
-   * @param id of the collectible
-   * @return Future Option[ExtendedCollectible]
+   * @param id of the subject
+   * @return Future Option[ExtendedSubject]
    */
-  def getExtendedCollectible(id: Long): Future[Option[ExtendedCollectible]] = {
+  def getExtendedSubject(id: Long): Future[Option[ExtendedSubject]] = {
 
-    val collectibleQuery = collectibles.filter(_.id === id)
+    val subjectQuery = subjects.filter(_.id === id)
 
-    val viewerQuery = collectibleQuery join collections on (_.collectionId === _.id) join
+    val viewerQuery = subjectQuery join collections on (_.collectionId === _.id) join
       viewers on (_._2.entityId === _.targetId) join
       groups on (_._2.viewerId === _.id)
 
-    val propertyQuery = collectibleQuery joinLeft properties on (_.entityId === _.parentId)
+    val propertyQuery = subjectQuery joinLeft properties on (_.entityId === _.parentId)
 
-    val typeQuery = collectibleQuery join typeVersions on (_.typeVersionId === _.id) join entityTypes on (_._2.typeId === _.id)
+    val typeQuery = subjectQuery join typeVersions on (_.typeVersionId === _.id) join entityTypes on (_._2.typeId === _.id)
 
     for {
       viewerResult <- db.run(viewerQuery.result)
       propertyResult <- db.run(propertyQuery.result)
       typeResult <- db.run(typeQuery.result)
     } yield {
-      val collectibleWithProperties = propertyResult.groupBy(_._1).mapValues(values => values.map(_._2)).headOption
-      if (collectibleWithProperties.isEmpty) {
+      val subjectWithProperties = propertyResult.groupBy(_._1).mapValues(values => values.map(_._2)).headOption
+      if (subjectWithProperties.isEmpty) {
         None
       } else {
-        val collectible = collectibleWithProperties.get._1
-        //Note: only viewers of that particular collectible (parent) are in the result
+        val subject = subjectWithProperties.get._1
+        //Note: only viewers of that particular subject (parent) are in the result
         val viewerRelations = viewerResult.map(value => (value._2, value._1._2))
         val viewerCombinator = ViewerCombinator.fromRelations(viewerRelations)
         val entityType = typeResult.head._2
 
-        Some(ExtendedCollectible(collectible, collectibleWithProperties.get._2.map(_.get), viewerCombinator, entityType))
+        Some(ExtendedSubject(subject, subjectWithProperties.get._2.map(_.get), viewerCombinator, entityType))
       }
     }
   }
 
   /**
-   * Update the state attribute of a [[modules.subject.model.Collectible Collectible]].
+   * Update the state attribute of a [[modules.subject.model.Subject Subject]].
    *
-   * @param collectibleId id of the collectible.
+   * @param subjectId id of the subject.
    * @param newState      new [[modules.subject.model.SubjectState]] value
    * @return Future[Int]
    */
-  def updateState(collectibleId: Long, newState: SubjectState.State): Future[Int] = {
-    db.run(collectibles.filter(_.id === collectibleId).map(_.state).update(newState.toString))
+  def updateState(subjectId: Long, newState: SubjectState.State): Future[Int] = {
+    db.run(subjects.filter(_.id === subjectId).map(_.state).update(newState.toString))
   }
 
   /**
    * Add new [[modules.core.model.Constraint Constraints]] to a [[modules.core.model.FlimeyEntity FlimeyEntity]] of
-   * the [[modules.subject.model.Collectible Collectible]] subtype.
+   * the [[modules.subject.model.Subject Subject]] subtype.
    * <p> The id of all new Constraints must be set to 0 to enable auto increment.
    * <p> This method makes a difference between new propertyConstraints (Constraints of the HasProperty type) and other
    * Constraints.
@@ -190,7 +190,7 @@ class CollectibleRepository @Inject()(@NamedDatabase("flimey_data") protected va
    * [[modules.core.repository.ConstraintRepository#addConstraint]]) will lead to loosing the integrity of the type
    * system. </strong>
    *
-   * @param typeVersionId       id of the [[modules.core.model.TypeVersion TypeVersion]] (of a Collectible) to add the new Constraints to.
+   * @param typeVersionId       id of the [[modules.core.model.TypeVersion TypeVersion]] (of a Subject) to add the new Constraints to.
    * @param propertyConstraints new Constraints of HasProperty type
    * @param otherConstraints    new Constraints NOT of HasProperty type
    * @return Future[Unit]
@@ -200,7 +200,7 @@ class CollectibleRepository @Inject()(@NamedDatabase("flimey_data") protected va
     val allConstraints = (propertyConstraints ++ otherConstraints) map (c => Constraint(c.id, c.c, c.v1, c.v2, c.byPlugin, typeVersionId))
 
     db.run((for {
-      entityIDsWithType <- collectibles.filter(_.typeVersionId === typeVersionId).map(_.entityId).result
+      entityIDsWithType <- subjects.filter(_.typeVersionId === typeVersionId).map(_.entityId).result
       _ <- DBIO.sequence(propertyConstraints.map(propertyConstraint => {
         properties ++= entityIDsWithType.map(entityId => Property(0, propertyConstraint.v1, "", entityId))
       }))
@@ -209,7 +209,7 @@ class CollectibleRepository @Inject()(@NamedDatabase("flimey_data") protected va
   }
 
   /**
-   * Delete [[modules.core.model.Constraint Constraints]] of a [[modules.subject.model.Collection Collectible]] associated
+   * Delete [[modules.core.model.Constraint Constraints]] of a [[modules.subject.model.Collection Subject]] associated
    * [[modules.core.model.EntityType EntityType]].
    * <p> This operation deletes all [[modules.core.model.Property Properties]] associated to HasProperty Constraints
    * (here represented by propertyConstraints seq)
@@ -228,7 +228,7 @@ class CollectibleRepository @Inject()(@NamedDatabase("flimey_data") protected va
     val deletedPropertyKeys = propertyConstraints.map(_.v1) toSet
     val deletedConstraintIds = propertyConstraints ++ otherConstraints map (_.id) toSet
 
-    val entityIDsWithType = collectibles.filter(_.typeVersionId === typeVersionId).map(_.entityId)
+    val entityIDsWithType = subjects.filter(_.typeVersionId === typeVersionId).map(_.entityId)
 
     db.run((for {
       _ <- properties.filter(_.parentId in entityIDsWithType).filter(_.key.inSet(deletedPropertyKeys)).delete

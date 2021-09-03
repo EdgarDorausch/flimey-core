@@ -1,6 +1,7 @@
 @*
 * This file is part of the flimey-core software.
 * Copyright (C) 2021 Karl Kegel
+* Copyright (C) 2020-2021 Julia Kegel
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -19,22 +20,25 @@
 @import views.html.components.utils.{message_box_error, navbar_category_closeable}
 @import modules.core.formdata.EntityForm
 @import views.html.components.utils.message_box_success
-@import modules.user.model.Group
 @import modules.core.model.EntityType
-@import views.html.forms.core.edit_viewable_entity_form
-@import modules.subject.model.CollectionHeader
-@import modules.subject.model.Collection
-@import views.html.forms.subject.change_status_form
-@import modules.subject.model.Collectible
-@(collectible: Collectible, msg: Option[String] = None, successMsg: Option[String] = None)(
-        implicit request: RequestHeader, messagesProvider: MessagesProvider, ticket: Ticket)
+@import views.html.forms.core.edit_pure_entity_form
+@import modules.subject.model.ExtendedSubject
+@(selectedType: EntityType,
+        extendedSubject: ExtendedSubject,
+        propertyKeys: Seq[(String, String)],
+        obligatoryKeys: Map[String, String],
+        entityForm: Form[EntityForm.Data],
+        msg: Option[String] = None,
+        successMsg: Option[String] = None)(implicit request: RequestHeader, messagesProvider: MessagesProvider, ticket: Ticket)
 
 @app {
-    @navbar_category_closeable(Seq("Status Graph Editor"), routes.CollectionController.getCollection(collectible.collectionId))
+    @navbar_category_closeable(Seq("Subject Editor"), routes.CollectionController.getCollection(extendedSubject.subject.collectionId))
 }{
     @message_box_error(msg)
     @message_box_success(successMsg)
-    <div class="card shadowed p-l-mini p-r-mini p-t-small p-b-small">
-        @change_status_form(collectible.state, routes.CollectibleController.postState(collectible.collectionId, collectible.id))
+    <div class="card shadowed p-ltrb-mini">
+        @edit_pure_entity_form(selectedType, extendedSubject.subject.id, propertyKeys, obligatoryKeys,
+            entityForm, routes.SubjectController.postSubject(extendedSubject.subject.collectionId, extendedSubject.subject.id),
+            routes.SubjectController.deleteSubject(extendedSubject.subject.collectionId, extendedSubject.subject.id))
     </div>
 }()()()

@@ -20,17 +20,17 @@ package modules.subject.service
 
 import modules.core.model.{Constraint, ConstraintType}
 import modules.core.util.ConstraintProcessor
-import modules.subject.model.CollectibleConstraintSpec
+import modules.subject.model.SubjectConstraintSpec
 import modules.util.messages.{ERR, OK, Status}
 
 /**
  * Trait which provides functionality for parsing and processing constraints
  */
-trait CollectibleConstraintProcessor extends ConstraintProcessor {
+trait SubjectConstraintProcessor extends ConstraintProcessor {
 
   /**
    * Checks if a given [[modules.core.model.Constraint Constraint]] is a syntactically correct Constraint of an
-   * [[modules.subject.model.Collectible Collectible]] [[modules.core.model.TypeVersion TypeVersion]].
+   * [[modules.subject.model.Subject Subject]] [[modules.core.model.TypeVersion TypeVersion]].
    * No semantic analysis is done!
    *
    * @param constraint to check
@@ -38,7 +38,7 @@ trait CollectibleConstraintProcessor extends ConstraintProcessor {
    */
   override def isValidConstraint(constraint: Constraint): Status = {
     constraint.c match {
-      case ConstraintType.HasProperty => isHasPropertyConstraint(constraint.v1, constraint.v2, CollectibleConstraintSpec.hasPropertyTypes)
+      case ConstraintType.HasProperty => isHasPropertyConstraint(constraint.v1, constraint.v2, SubjectConstraintSpec.hasPropertyTypes)
       case ConstraintType.MustBeDefined => isMustBeDefinedConstraint(constraint.v1, constraint.v2)
       case ConstraintType.UsesPlugin => isUsesPluginConstraint(constraint.v1, constraint.v2)
       case ConstraintType.CanContain => isCanContainConstraint(constraint.v1, constraint.v2)
@@ -47,7 +47,7 @@ trait CollectibleConstraintProcessor extends ConstraintProcessor {
   }
 
   /**
-   * Checks if a [[modules.core.model.Constraint Constraint]] model is valid to model a [[modules.subject.model.Collectible Collectible]].
+   * Checks if a [[modules.core.model.Constraint Constraint]] model is valid to model a [[modules.subject.model.Subject Subject]].
    * <p> 1. Checks if HasProperty(s) and MustBeDefined(s) are matching
    * <p> 2. Checks if no duplicate Constraints are present
    * <p> 3. Checks if the configuration serves its UsesPlugin(s)

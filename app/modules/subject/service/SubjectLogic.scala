@@ -16,15 +16,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  * */
 
-package modules.subject.model
+package modules.subject.service
 
-import modules.core.model.{EntityType, Property}
+import modules.core.util.PropertyProcessor
+import modules.user.service.ViewerProcessor
 
-/**
- * The CollectibleHeader class wraps a [[modules.subject.model.Collectible Collectible]] together with with all its objectified
- * [[modules.core.model.Property Properties]].
- *
- * @param collectible Collectible (contains only id and type reference)
- * @param properties  all Properties of the Collectible
- */
-case class CollectibleHeader(collectible: Collectible, properties: Seq[Property], entityType: Option[EntityType])
+object SubjectLogic extends SubjectConstraintProcessor with PropertyProcessor with ViewerProcessor with SuperSubjectStateProcessor {
+
+}

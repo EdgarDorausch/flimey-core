@@ -16,11 +16,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  * */
 
-package modules.subject.service
+package modules.subject.repository
 
-import modules.core.util.PropertyProcessor
-import modules.user.service.ViewerProcessor
+import java.sql.Timestamp
 
-object CollectibleLogic extends CollectibleConstraintProcessor with PropertyProcessor with ViewerProcessor with CollectibleStateProcessor {
+import modules.subject.model.Subject
+import slick.jdbc.PostgresProfile.api._
+
+class SubjectTable(tag: Tag) extends Table[Subject](tag, "subject") {
+
+  def id = column[Long]("id", O.PrimaryKey,O.AutoInc)
+  def entityId = column[Long]("entity_id")
+  def collectionId = column[Long]("collection_id")
+  def typeVersionId = column[Long]("type_version_id")
+  def state = column[String]("state")
+  def created = column[Timestamp]("created")
+
+  override def * = (id, entityId, collectionId, typeVersionId, state, created) <> (Subject.tupledRaw, Subject.unapplyToRaw)
 
 }

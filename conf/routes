@@ -88,16 +88,16 @@ GET     /collection/editor/:collectionId/state              controllers.Collecti
 POST    /collection/editor/:collectionId/state              controllers.CollectionController.postState(collectionId: Long)
 
 
-POST    /collection/:collectionId/collectible/new           controllers.CollectibleController.requestNewCollectibleEditor(collectionId: Long)
-GET     /collection/:collectionId/collectible/:typeId/new   controllers.CollectibleController.getNewCollectibleEditor(collectionId: Long, typeId: Long)
-POST    /collection/:collectionId/collectible/:typeId/new   controllers.CollectibleController.addNewCollectible(collectionId: Long, typeId: Long)
+POST    /collection/:collectionId/subject/new                       controllers.SubjectController.requestNewSubjectEditor(collectionId: Long)
+GET     /collection/:collectionId/subject/:typeId/new               controllers.SubjectController.getNewSubjectEditor(collectionId: Long, typeId: Long)
+POST    /collection/:collectionId/subject/:typeId/new               controllers.SubjectController.addNewSubject(collectionId: Long, typeId: Long)
 
-GET     /collection/editor/:collectionId/collectible/:collectibleId         controllers.CollectibleController.getCollectibleEditor(collectionId: Long, collectibleId: Long)
-POST    /collection/editor/:collectionId/collectible/:collectibleId         controllers.CollectibleController.postCollectible(collectionId: Long, collectibleId: Long)
-POST    /collection/editor/:collectionId/collectible/:collectibleId/delete  controllers.CollectibleController.deleteCollectible(collectionId: Long, collectibleId: Long)
+GET     /collection/editor/:collectionId/subject/:subjectId         controllers.SubjectController.getSubjectEditor(collectionId: Long, subjectId: Long)
+POST    /collection/editor/:collectionId/subject/:subjectId         controllers.SubjectController.postSubject(collectionId: Long, subjectId: Long)
+POST    /collection/editor/:collectionId/subject/:subjectId/delete  controllers.SubjectController.deleteSubject(collectionId: Long, subjectId: Long)
 
-GET     /collection/editor/:collectionId/collectible/:collectibleId/state   controllers.CollectibleController.getStateEditor(collectionId: Long, collectibleId: Long)
-POST    /collection/editor/:collectionId/collectible/:collectibleId/state   controllers.CollectibleController.postState(collectionId: Long, collectibleId: Long)
+GET     /collection/editor/:collectionId/subject/:subjectId/state   controllers.SubjectController.getStateEditor(collectionId: Long, subjectId: Long)
+POST    /collection/editor/:collectionId/subject/:subjectId/state   controllers.SubjectController.postState(collectionId: Long, subjectId: Long)
 
 
 GET     /management                                         controllers.ManagementController.index()

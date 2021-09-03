@@ -16,12 +16,12 @@
 * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 * *@
 @import modules.asset.model.AssetConstraintSpec
-@import modules.subject.model.{CollectibleConstraintSpec, CollectionConstraintSpec}
+@import modules.subject.model.{SubjectConstraintSpec, CollectionConstraintSpec}
 @import views.html.helper.CSRF
 @()(implicit request: RequestHeader, messagesProvider: MessagesProvider)
 
 @possibleParents = @{
-    Seq("Choose a Type") ++ AssetConstraintSpec.canDeriveFrom ++ CollectionConstraintSpec.canDeriveFrom ++ CollectibleConstraintSpec.canDeriveFrom
+    Seq("Choose a Type") ++ AssetConstraintSpec.canDeriveFrom ++ CollectionConstraintSpec.canDeriveFrom ++ SubjectConstraintSpec.canDeriveFrom
 }
 
     @helper.form(action = routes.ModelController.addType()) {

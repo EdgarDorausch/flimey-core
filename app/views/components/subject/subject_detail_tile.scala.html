@@ -17,12 +17,12 @@
 * along with this program. If not, see <https://www.gnu.org/licenses/>.
 * *@
 @import views.html.components.core.meta_entity
-@import modules.subject.model.CollectibleHeader
-@(data: CollectibleHeader)(implicit request: RequestHeader, messagesProvider: MessagesProvider)
+@import modules.subject.model.SubjectHeader
+@(data: SubjectHeader)(implicit request: RequestHeader, messagesProvider: MessagesProvider)
 
 <div class="meta-entity-container card shadowed relative-container p-ltrb-mini m-t-small">
     <div class="float-top-right">
-        <a href="@routes.CollectibleController.getCollectibleEditor(data.collectible.collectionId, data.collectible.id)">
+        <a href="@routes.SubjectController.getSubjectEditor(data.subject.collectionId, data.subject.id)">
             <i class="material-icons fc-prim">create</i>
         </a>
     </div>
@@ -35,12 +35,12 @@
         }
     </div>
     <div class="flex-container horizontal left-align m-t-small">
-        <div>status: @data.collectible.state </div>
-        <a href="@routes.CollectibleController.getStateEditor(data.collectible.collectionId, data.collectible.id)">
+        <div>status: @data.subject.state </div>
+        <a href="@routes.SubjectController.getStateEditor(data.subject.collectionId, data.subject.id)">
             <i class="material-icons fc-prim">swap_horiz</i>
         </a>
     </div>
-    <div> created at: @data.collectible.created.format("dd.MM.yyyy HH:mm")</div>
+    <div> created at: @data.subject.created.format("dd.MM.yyyy HH:mm")</div>
     <div class="m-t-small">
     @for(property <- data.properties) {
         @if(property.key != "Name") {
@@ -51,7 +51,7 @@
         }
     }
     </div>
-    @meta_entity(data.collectible.id, data.properties, None)
+    @meta_entity(data.subject.id, data.properties, None)
     <div class="meta-viewport"></div>
     <div class="flex-container full-width horizontal left-align m-t-small">
     @if(data.entityType.isDefined) {

@@ -187,7 +187,7 @@ class CollectionService @Inject()(typeRepository: TypeRepository,
         if(state == SubjectState.ARCHIVED){
           ViewerAssertion.assertMaintain(collection.viewers)
           //check if all children are closed with success or failure
-          val readyToArchive = CollectionLogic.isReadyToArchive(collection.collectibles)
+          val readyToArchive = CollectionLogic.isReadyToArchive(collection.subjects)
           if(!readyToArchive.valid) readyToArchive.throwError
         }
 
@@ -231,7 +231,7 @@ class CollectionService @Inject()(typeRepository: TypeRepository,
 
   /**
    * Get a [[modules.subject.model.CollectionHeader CollectionHeader]] WITHOUT its children
-   * [[modules.subject.model.Collectible Collectible]] data but together with its
+   * [[modules.subject.model.Subject Subject]] data but together with its
    * [[modules.core.model.Property Properties]] and [[modules.core.model.Viewer Viewers]] by id.
    * <p> A User (given by his ticket) can only request Collections he has access rights to.
    * <p> Fails without WORKER rights.
@@ -325,7 +325,7 @@ class CollectionService @Inject()(typeRepository: TypeRepository,
 
   /**
    * Delete a [[modules.subject.model.Collection Collection]].
-   * <p> <strong> This will also delete all child [[modules.subject.model.Collectible Collectibles]]!</strong>
+   * <p> <strong> This will also delete all child [[modules.subject.model.Subject Subjects]]!</strong>
    * <p> This is a safe implementation and can be used by controller classes.
    * <p> Fails without MAINTAINER rights
    *

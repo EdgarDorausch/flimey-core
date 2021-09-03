@@ -62,7 +62,7 @@ create table collection
     FOREIGN KEY (type_version_id) REFERENCES type_version (id)
 );
 
-create table collectible
+create table subject
 (
     id              SERIAL       NOT NULL PRIMARY KEY,
     entity_id       BIGINT       NOT NULL,
@@ -189,7 +189,7 @@ drop table f_user;
 drop table property;
 drop table type_constraint;
 drop table asset;
-drop table collectible;
+drop table subject;
 drop table collection;
 drop table type_version;
 drop table entity_type;

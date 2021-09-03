@@ -17,10 +17,10 @@
 * along with this program. If not, see <https://www.gnu.org/licenses/>.
 * *@
 @import modules.core.model.ExtendedEntityType
-@import modules.subject.model.CollectibleHeader
-@import views.html.components.subject.collectible_detail_tile
-@(collectibles: Seq[CollectibleHeader])(implicit request: RequestHeader, messagesProvider: MessagesProvider)
+@import modules.subject.model.SubjectHeader
+@import views.html.components.subject.subject_detail_tile
+@(subjects: Seq[SubjectHeader])(implicit request: RequestHeader, messagesProvider: MessagesProvider)
 
-@for(collectible <- collectibles){
-    @collectible_detail_tile(collectible)
+@for(subject <- subjects){
+    @subject_detail_tile(subject)
 }

@@ -38,16 +38,16 @@ trait NewsFactory {
   }
 
   /**
-   * Create a new [[modules.news.model.NewsEvent NewsEvent]] from a [[modules.subject.model.Collectible Collectible]].
+   * Create a new [[modules.news.model.NewsEvent NewsEvent]] from a [[modules.subject.model.Subject Subject]].
    *
    * @param collectionId  id of the parent [[modules.subject.model.Collection Collection]]
-   * @param collectibleId id of the Collectible
+   * @param subjectId id of the Subject
    * @param newsType      [[modules.news.model.NewsType NewsType]] which triggered the NewsEvent
    * @param description   an optional short description
    * @return
    */
-  def eventFrom(collectionId: Long, collectibleId: Long, newsType: NewsType.Value, description: Option[String]): NewsEvent = {
-    NewsEvent(0, newsType, 1, description.getOrElse(""), NewsRouter.buildRoute(collectionId, collectibleId, newsType), Timestamp.from(Instant.now()))
+  def eventFrom(collectionId: Long, subjectId: Long, newsType: NewsType.Value, description: Option[String]): NewsEvent = {
+    NewsEvent(0, newsType, 1, description.getOrElse(""), NewsRouter.buildRoute(collectionId, subjectId, newsType), Timestamp.from(Instant.now()))
   }
 
 }

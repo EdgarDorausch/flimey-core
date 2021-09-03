@@ -21,29 +21,29 @@ package modules.subject.model
 import java.sql.Timestamp
 
 /**
- * Collectible is a subtype of [[modules.core.model.FlimeyEntity FlimeyEntity]]. It represents a single process step and
+ * Subject is a subtype of [[modules.core.model.FlimeyEntity FlimeyEntity]]. It represents a single process step and
  * can not contain other entities
- * In other words, a Collectible is a leaf of the [[modules.subject.model.Collection Collection]] tree.
+ * In other words, a Subject is a leaf of the [[modules.subject.model.Collection Collection]] tree.
  * <p> Has a repository representation.
  *
  * @param id           unique identifier
  * @param entityId     id of the parent FlimeyEntity
- * @param collectionId id of the Collection which contains the Collectible
+ * @param collectionId id of the Collection which contains the Subject
  * @param typeVersionId       id of the parent TypeVersion
- * @param state        [[modules.subject.model.SubjectState SubjectState]] of the Collectible
+ * @param state        [[modules.subject.model.SubjectState SubjectState]] of the Subject
  * @param created      creation timestamp
  */
-case class Collectible(id: Long, entityId: Long, collectionId: Long, typeVersionId: Long, state: SubjectState.State, created: Timestamp)
+case class Subject(id: Long, entityId: Long, collectionId: Long, typeVersionId: Long, state: SubjectState.State, created: Timestamp)
 
-object Collectible {
+object Subject {
 
-  def applyRaw(id: Long, entityId: Long, collectionId: Long, typeVersionId: Long, state: String, created: Timestamp): Collectible = {
-    Collectible(id, entityId, collectionId, typeVersionId, SubjectState.withName(state), created)
+  def applyRaw(id: Long, entityId: Long, collectionId: Long, typeVersionId: Long, state: String, created: Timestamp): Subject = {
+    Subject(id, entityId, collectionId, typeVersionId, SubjectState.withName(state), created)
   }
 
-  def unapplyToRaw(arg: Collectible): Option[(Long, Long, Long, Long, String, Timestamp)] =
+  def unapplyToRaw(arg: Subject): Option[(Long, Long, Long, Long, String, Timestamp)] =
     Option((arg.id, arg.entityId, arg.collectionId, arg.typeVersionId, arg.state.toString, arg.created))
 
-  val tupledRaw: ((Long, Long, Long, Long, String, Timestamp)) => Collectible = (this.applyRaw _).tupled
+  val tupledRaw: ((Long, Long, Long, Long, String, Timestamp)) => Subject = (this.applyRaw _).tupled
 
 }
