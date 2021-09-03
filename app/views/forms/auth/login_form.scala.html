@@ -25,7 +25,7 @@
     @CSRF.formField
     <div class="flex-container vertical m-t-small full-width">
     <input type="text" name="email" class="" placeholder="email" value="@loginForm.data("email")"/>
-    <input class="m-t-mini" type="text" name="password" placeholder="password" value="@loginForm.data("password")"/>
+    <input class="m-t-mini" type="password" name="password" placeholder="password" value="@loginForm.data("password")"/>
     <div>
     @if(loginForm.error("email").isDefined){
         <div>@message_box_error(Option("Invalid email"))</div>

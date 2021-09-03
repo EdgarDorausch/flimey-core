@@ -60,40 +60,40 @@ class NewsService @Inject()(newsEventRepository: NewsEventRepository) extends Ne
   }
 
   /**
-   * Add a new [[modules.news.model.NewsEvent NewsEvent]] triggered by a [[modules.subject.model.Collection Collection]].
+   * Add a new [[modules.news.model.NewsEvent NewsEvent]] triggered by a [[modules.subject.model.Frame Frame]].
    * <p> Requires at least WORKER rights.
    * <p> This is a safe implementation and can be used inside controller classes.
    *
    * @see [[modules.news.service.NewsService#addEvent]]
-   * @param collectionId id of the Collection
+   * @param frameId id of the Frame
    * @param newsType     [[modules.news.model.NewsType NewsType]] which triggered the NewsEvent
    * @param viewers      all [[modules.user.model.Group Groups]] by id which can see this NewsEvent
    * @param description  an optional short description
    * @param ticket       implicit authentication ticket
    * @return Future[Unit]
    */
-  def addCollectionEvent(collectionId: Long, newsType: NewsType.Value, viewers: Set[Long],
+  def addFrameEvent(frameId: Long, newsType: NewsType.Value, viewers: Set[Long],
                          description: Option[String] = None)(implicit ticket: Ticket): Future[Unit] = {
-    addEvent(eventFrom(collectionId, newsType, description), viewers)
+    addEvent(eventFrom(frameId, newsType, description), viewers)
   }
 
   /**
-   * Add a new [[modules.news.model.NewsEvent NewsEvent]] triggered by a [[modules.subject.model.Collectible Collectible]].
+   * Add a new [[modules.news.model.NewsEvent NewsEvent]] triggered by a [[modules.subject.model.Subject Subject]].
    * <p> Requires at least WORKER rights.
    * <p> This is a safe implementation and can be used inside controller classes.
    *
    * @see [[modules.news.service.NewsService#addEvent]]
-   * @param collectionId  id of the parent [[modules.subject.model.Collection Collection]]
-   * @param collectibleId id of the Collectible
+   * @param frameId  id of the parent [[modules.subject.model.Frame Frame]]
+   * @param subjectId id of the Subject
    * @param newsType      [[modules.news.model.NewsType NewsType]] which triggered the NewsEvent
    * @param viewers       all [[modules.user.model.Group Groups]] by id which can see this NewsEvent
    * @param description   an optional short description
    * @param ticket        implicit authentication ticket
    * @return Future[Unit]
    */
-  def addCollectibleEvent(collectionId: Long, collectibleId: Long, newsType: NewsType.Value, viewers: Set[Long],
+  def addSubjectEvent(frameId: Long, subjectId: Long, newsType: NewsType.Value, viewers: Set[Long],
                           description: Option[String] = None)(implicit ticket: Ticket): Future[Unit] = {
-    addEvent(eventFrom(collectionId, collectibleId, newsType, description), viewers)
+    addEvent(eventFrom(frameId, subjectId, newsType, description), viewers)
   }
 
   /**

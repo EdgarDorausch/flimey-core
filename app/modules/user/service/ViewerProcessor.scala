@@ -27,7 +27,7 @@ import modules.user.model.{Group, ViewerCombinator}
 trait ViewerProcessor {
 
   /**
-   * Derive Viewer objects from a given raw string collection.
+   * Derive Viewer objects from a given raw string frame.
    * <p> Duplicates and invalid names will be filtered and ignored.
    * <p> If names occur in different role categories, only the highest role will become a Viewer.
    * <p> All ids and viewerIds in the result Viewers are set to 0.

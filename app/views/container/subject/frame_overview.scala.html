@@ -16,20 +16,24 @@
 * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 * *@
 @import modules.auth.model.Ticket
+@import modules.core.model.EntityType
+@import views.html.forms.subject.frame_query_form
 @import views.html.components.utils.message_box_error
-@import modules.news.model.ExtendedNewsEvent
+@import modules.subject.model.FrameHeader
+@import views.html.forms.core.select_type_form
+@import views.html.components.subject.frame_block
 @import views.html.components.utils.navbar_category
-@import views.html.components.overview.news_block
-@(feed: Seq[ExtendedNewsEvent], msg: Option[String] = None)(implicit request: RequestHeader, messagesProvider: MessagesProvider, ticket: Ticket)
+@(frameTypes: Seq[EntityType],
+        frameData: Seq[FrameHeader],
+        msg: Option[String] = None)(implicit request: RequestHeader, messagesProvider: MessagesProvider, ticket: Ticket)
 
 @app {
-    @navbar_category(Seq("Overview"))
+    @navbar_category(Seq("Dashboard"))
 }{
     @message_box_error(msg)
-    @if(feed.isEmpty){
-        <h5>No News Found</h5>
-    }else{
-        <h5>experimental feature - not fully working yet</h5>
-        @news_block(feed)
-    }
+    <div class="card shadowed p-ltrb-mini">
+        @select_type_form(None, frameTypes, routes.FrameController.requestNewFrameEditor(), "New")
+    </div>
+    <!--@frame_query_form()-->
+    @frame_block(frameData)
 }()()()

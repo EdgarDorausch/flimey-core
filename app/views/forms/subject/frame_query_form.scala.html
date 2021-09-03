@@ -15,21 +15,11 @@
 * You should have received a copy of the GNU General Public License
 * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 * *@
+@import views.html.helper.CSRF
 @import modules.auth.model.Ticket
-@import views.html.components.utils.message_box_error
-@import modules.news.model.ExtendedNewsEvent
-@import views.html.components.utils.navbar_category
-@import views.html.components.overview.news_block
-@(feed: Seq[ExtendedNewsEvent], msg: Option[String] = None)(implicit request: RequestHeader, messagesProvider: MessagesProvider, ticket: Ticket)
+@()(implicit request: RequestHeader, messagesProvider: MessagesProvider, ticket: Ticket)
 
-@app {
-    @navbar_category(Seq("Overview"))
-}{
-    @message_box_error(msg)
-    @if(feed.isEmpty){
-        <h5>No News Found</h5>
-    }else{
-        <h5>experimental feature - not fully working yet</h5>
-        @news_block(feed)
-    }
-}()()()
+@helper.form(action = routes.FrameController.findByQuery()) {
+    @CSRF.formField
+    <button class="">Select</button>
+}

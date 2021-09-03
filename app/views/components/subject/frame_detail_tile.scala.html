@@ -1,0 +1,58 @@
+@*
+* This file is part of the flimey-core software.
+* Copyright (C) 2021 Karl Kegel
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <https://www.gnu.org/licenses/>.
+* *@
+@import modules.subject.model.ExtendedFrame
+@import views.html.components.core.{meta_entity, viewer_tag_box}
+@(data: ExtendedFrame, typeValue: String)(implicit request: RequestHeader, messagesProvider: MessagesProvider)
+
+<div class="meta-entity-container card shadowed relative-container p-ltrb-mini">
+    <div class="float-top-right">
+        <a href="@routes.FrameController.getFrameEditor(data.frame.id)">
+            <i class="material-icons fc-prim">create</i>
+        </a>
+    </div>
+    <div class="flex-container horizontal left-align">
+        @if(!data.properties.find(_.key == "Name").get.value.isBlank) {
+            <b>@data.properties.find(_.key == "Name").get.value</b>
+        }else{
+            <i>Undefined Name</i>
+        }
+    </div>
+    <div class="flex-container horizontal left-align m-t-small">
+        <div>status: @data.frame.status </div>
+        <a href="@routes.FrameController.getStateEditor(data.frame.id)">
+            <i class="material-icons fc-prim">swap_horiz</i>
+        </a>
+    </div>
+    <div> created at: @data.frame.created.format("dd.MM.yyyy HH:mm")</div>
+    <div class="m-t-small">
+        @for(property <- data.properties) {
+            @if(property.key != "Name") {
+                <div class="flex-container full-width alternating ">
+                    <div class="col-3">@property.key</div>
+                    <div><b>@property.value</b></div>
+                </div>
+            }
+        }
+    </div>
+    <div class="flex-container full-width horizontal left-align m-t-small">
+        <div class="tag bg-sec-dark">
+            @data.entityType.value.toLowerCase
+        </div>
+        @viewer_tag_box(data.viewers)
+    </div>
+</div>
