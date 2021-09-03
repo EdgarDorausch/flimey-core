@@ -1,0 +1,52 @@
+@*
+* This file is part of the flimey-core software.
+* Copyright (C) 2021 Karl Kegel
+* Copyright (C) 2020-2021 Julia Kegel
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <https://www.gnu.org/licenses/>.
+* *@
+@import modules.subject.model.FrameHeader
+@import views.html.components.core.viewer_tag_box
+@import views.html.components.core.meta_entity
+@(data: FrameHeader)(implicit request: RequestHeader, messagesProvider: MessagesProvider)
+
+<div class="meta-entity-container card shadowed relative-container p-ltrb-mini m-t-small">
+    <div class="float-top-right m-t-mini m-r-mini">
+        <a href="@routes.FrameController.getFrame(data.frame.id)">
+            <i class="material-icons fc-prim">open_in_new</i>
+        </a>
+    </div>
+    <div class="flex-container horizontal left-align">
+        @if(!data.properties.find(_.key == "Name").get.value.isBlank) {
+            <b>@data.properties.find(_.key == "Name").get.value</b>
+        }else{
+            <i>Undefined Name</i>
+        }
+    </div>
+    <div class="flex-container horizontal stretched m-t-small">
+        <div>@data.frame.status</div>
+        <div class="weight-2"></div>
+        <div class="padding-left-10">created at: @data.frame.created.format("dd.MM.yyyy HH:mm")</div>
+    </div>
+    @meta_entity(data.frame.id, data.properties, Some(data.subjects.map(c => (c.subject.typeVersionId, c.properties))))
+    <div class="meta-viewport"></div>
+    <div class="flex-container full-width horizontal left-align m-t-small">
+    @if(data.entityType.isDefined) {
+        <div class="tag bg-sec-dark">
+        @data.entityType.get.value.toLowerCase
+        </div>
+    }
+    @viewer_tag_box(data.viewers)
+    </div>
+</div>

@@ -19,7 +19,7 @@
 package modules.subject.model
 
 /**
- * Enumeration to represent the rights a Group has in a viewer relation to another Group, Asset or Collection.
+ * Enumeration to represent the rights a Group has in a viewer relation to another Group, Asset or Frame.
  */
 object SubjectState extends Enumeration {
 

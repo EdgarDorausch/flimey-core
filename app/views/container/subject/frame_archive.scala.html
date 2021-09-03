@@ -17,19 +17,19 @@
 * *@
 @import modules.auth.model.Ticket
 @import views.html.components.utils.message_box_error
-@import modules.news.model.ExtendedNewsEvent
 @import views.html.components.utils.navbar_category
-@import views.html.components.overview.news_block
-@(feed: Seq[ExtendedNewsEvent], msg: Option[String] = None)(implicit request: RequestHeader, messagesProvider: MessagesProvider, ticket: Ticket)
+@import modules.subject.model.ArchivedFrame
+@import views.html.forms.core.string_query_form
+@import views.html.components.subject.frame_archive_block
+@(frames: Seq[ArchivedFrame], query: String, msg: Option[String] = None)(
+        implicit request: RequestHeader, messagesProvider: MessagesProvider, ticket: Ticket)
 
 @app {
-    @navbar_category(Seq("Overview"))
+    @navbar_category(Seq("Archive"))
 }{
     @message_box_error(msg)
-    @if(feed.isEmpty){
-        <h5>No News Found</h5>
-    }else{
-        <h5>experimental feature - not fully working yet</h5>
-        @news_block(feed)
-    }
+    <div class="card shadowed p-ltrb-mini">
+        @string_query_form(query, "search archive", routes.ArchiveController.query())
+    </div>
+    @frame_archive_block(frames)
 }()()()

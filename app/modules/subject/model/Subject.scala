@@ -1,0 +1,49 @@
+/*
+ * This file is part of the flimey-core software.
+ * Copyright (C) 2021 Karl Kegel
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * */
+
+package modules.subject.model
+
+import java.sql.Timestamp
+
+/**
+ * Subject is a subtype of [[modules.core.model.FlimeyEntity FlimeyEntity]]. It represents a single process step and
+ * can not contain other entities
+ * In other words, a Subject is a leaf of the [[modules.subject.model.Frame Frame]] tree.
+ * <p> Has a repository representation.
+ *
+ * @param id           unique identifier
+ * @param entityId     id of the parent FlimeyEntity
+ * @param frameId id of the Frame which contains the Subject
+ * @param typeVersionId       id of the parent TypeVersion
+ * @param state        [[modules.subject.model.SubjectState SubjectState]] of the Subject
+ * @param created      creation timestamp
+ */
+case class Subject(id: Long, entityId: Long, frameId: Long, typeVersionId: Long, state: SubjectState.State, created: Timestamp)
+
+object Subject {
+
+  def applyRaw(id: Long, entityId: Long, frameId: Long, typeVersionId: Long, state: String, created: Timestamp): Subject = {
+    Subject(id, entityId, frameId, typeVersionId, SubjectState.withName(state), created)
+  }
+
+  def unapplyToRaw(arg: Subject): Option[(Long, Long, Long, Long, String, Timestamp)] =
+    Option((arg.id, arg.entityId, arg.frameId, arg.typeVersionId, arg.state.toString, arg.created))
+
+  val tupledRaw: ((Long, Long, Long, Long, String, Timestamp)) => Subject = (this.applyRaw _).tupled
+
+}

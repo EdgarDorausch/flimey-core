@@ -106,7 +106,7 @@ trait ModelEntityService {
    *
    * @param value  value filed (name) of the searched EntityType
    * @param ticket implicit authentication ticket
-   * @return Future Option[CollectionType]
+   * @return Future Option[FrameType]
    */
   def getTypeByValue(value: String)(implicit ticket: Ticket): Future[Option[EntityType]]
 
