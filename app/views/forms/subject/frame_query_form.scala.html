@@ -19,7 +19,7 @@
 @import modules.auth.model.Ticket
 @()(implicit request: RequestHeader, messagesProvider: MessagesProvider, ticket: Ticket)
 
-@helper.form(action = routes.CollectionController.findByQuery()) {
+@helper.form(action = routes.FrameController.findByQuery()) {
     @CSRF.formField
     <button class="">Select</button>
 }

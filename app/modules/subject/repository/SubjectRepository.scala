@@ -42,7 +42,7 @@ class SubjectRepository @Inject()(@NamedDatabase("flimey_data") protected val db
   implicit executionContext: ExecutionContext) extends HasDatabaseConfigProvider[JdbcProfile] {
 
   val subjects = TableQuery[SubjectTable]
-  val collections = TableQuery[CollectionTable]
+  val frames = TableQuery[FrameTable]
   val entities = TableQuery[FlimeyEntityTable]
   val entityTypes = TableQuery[TypeTable]
   val typeVersions = TableQuery[TypeVersionTable]
@@ -64,7 +64,7 @@ class SubjectRepository @Inject()(@NamedDatabase("flimey_data") protected val db
     db.run((for {
       entityId <- (entities returning entities.map(_.id)) += FlimeyEntity(0)
       subjectId <- (subjects returning subjects.map(_.id)) +=
-        Subject(0, entityId, subject.collectionId, subject.typeVersionId, subject.state, subject.created)
+        Subject(0, entityId, subject.frameId, subject.typeVersionId, subject.state, subject.created)
       _ <- properties ++= newProperties.map(p => Property(0, p.key, p.value, entityId))
     } yield subjectId).transactionally)
   }
@@ -141,7 +141,7 @@ class SubjectRepository @Inject()(@NamedDatabase("flimey_data") protected val db
 
     val subjectQuery = subjects.filter(_.id === id)
 
-    val viewerQuery = subjectQuery join collections on (_.collectionId === _.id) join
+    val viewerQuery = subjectQuery join frames on (_.frameId === _.id) join
       viewers on (_._2.entityId === _.targetId) join
       groups on (_._2.viewerId === _.id)
 
@@ -209,7 +209,7 @@ class SubjectRepository @Inject()(@NamedDatabase("flimey_data") protected val db
   }
 
   /**
-   * Delete [[modules.core.model.Constraint Constraints]] of a [[modules.subject.model.Collection Subject]] associated
+   * Delete [[modules.core.model.Constraint Constraints]] of a [[modules.subject.model.Frame Subject]] associated
    * [[modules.core.model.EntityType EntityType]].
    * <p> This operation deletes all [[modules.core.model.Property Properties]] associated to HasProperty Constraints
    * (here represented by propertyConstraints seq)

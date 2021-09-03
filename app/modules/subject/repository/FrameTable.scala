@@ -16,13 +16,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  * */
 
-package modules.subject.model
+package modules.subject.repository
+import java.sql.Timestamp
 
-import modules.core.model.Property
+import modules.subject.model.Frame
+import slick.jdbc.PostgresProfile.api._
 
-/**
- * TODO add doc
- * @param collection
- * @param properties
- */
-case class ArchivedCollection(collection: Collection, properties: Seq[Property])
+class FrameTable(tag: Tag) extends Table[Frame](tag, "frame") {
+
+  def id = column[Long]("id", O.PrimaryKey,O.AutoInc)
+  def entityId = column[Long]("entity_id")
+  def typeVersionId = column[Long]("type_version_id")
+  def status = column[String]("status")
+  def created = column[Timestamp]("created")
+
+  override def * = (id, entityId, typeVersionId, status, created) <> (Frame.tupledRaw, Frame.unapplyToRaw)
+
+}

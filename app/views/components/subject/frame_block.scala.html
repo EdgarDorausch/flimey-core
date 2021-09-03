@@ -16,11 +16,9 @@
 * You should have received a copy of the GNU General Public License
 * along with this program. If not, see <https://www.gnu.org/licenses/>.
 * *@
-@import modules.subject.model.ArchivedCollection
-@import views.html.components.subject.collection_archive_tile
-@(collections: Seq[ArchivedCollection])(implicit request: RequestHeader, messagesProvider: MessagesProvider)
-<div class="meta-entity-root">
-    @for(collection <- collections){
-        @collection_archive_tile(collection)
-    }
-</div>
+@import modules.subject.model.FrameHeader
+@import views.html.components.subject.frame_tile
+@(frames: Seq[FrameHeader])(implicit request: RequestHeader, messagesProvider: MessagesProvider)
+@for(frame <- frames){
+    @frame_tile(frame)
+}

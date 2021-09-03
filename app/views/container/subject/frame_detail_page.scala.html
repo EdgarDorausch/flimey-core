@@ -18,34 +18,34 @@
 @import modules.auth.model.Ticket
 @import views.html.components.utils.message_box_error
 @import modules.core.model.ExtendedEntityType
-@import modules.subject.model.ExtendedCollection
+@import modules.subject.model.ExtendedFrame
 @import views.html.components.utils.navbar_category_closeable
 @import views.html.components.core.meta_typedef
 @import views.html.components.utils.navbar_category
-@import views.html.components.subject.collection_detail_tile
+@import views.html.components.subject.frame_detail_tile
 @import modules.core.model.EntityType
 @import views.html.forms.core.select_type_form
 @import views.html.components.subject.subject_block
-@(collectionType: ExtendedEntityType,
+@(frameType: ExtendedEntityType,
         subjectTypes: Seq[EntityType],
-        collectionData: ExtendedCollection,
+        frameData: ExtendedFrame,
         msg: Option[String] = None)(implicit request: RequestHeader, messagesProvider: MessagesProvider, ticket: Ticket)
 
 @app {
-    @navbar_category_closeable(Seq("Collection Details"), routes.CollectionController.index())
+    @navbar_category_closeable(Seq("Frame Details"), routes.FrameController.index())
 }{
     @message_box_error(msg)
     <div class="meta-entity-root">
-        @meta_typedef(Seq(collectionType))
-        @collection_detail_tile(collectionData, collectionType.entityType.value)
+        @meta_typedef(Seq(frameType))
+        @frame_detail_tile(frameData, frameType.entityType.value)
     </div>
 }{
     @navbar_category(Seq("Subjects"))
 }{
     <div class="card shadowed p-ltrb-mini">
-        @select_type_form(None, subjectTypes, routes.SubjectController.requestNewSubjectEditor(collectionData.collection.id), "New")
+        @select_type_form(None, subjectTypes, routes.SubjectController.requestNewSubjectEditor(frameData.frame.id), "New")
     </div>
     <div class="meta-entity-root">
-        @subject_block(collectionData.subjects)
+        @subject_block(frameData.subjects)
     </div>
 }()

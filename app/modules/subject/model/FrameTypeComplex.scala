@@ -16,11 +16,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  * */
 
-package modules.subject.service
+package modules.subject.model
 
-import modules.core.util.PropertyProcessor
-import modules.user.service.ViewerProcessor
+import modules.core.model.EntityType
 
-object CollectionLogic extends CollectionConstraintProcessor with PropertyProcessor with ViewerProcessor with SuperSubjectStateProcessor {
-
-}
+/**
+ * The FrameTypeComplex is a helper class to wrap several [[modules.subject.model.FrameHeader FrameHeaders]]
+ * together with all [[modules.core.model.ExtendedEntityType ExtendedEntityTypes]] which define [[modules.subject.model.Frame Frames]].
+ *
+ * @param frames   FrameHeaders
+ * @param frameTypes all EntityTypes which define Frames
+ */
+case class FrameTypeComplex(frames: Seq[FrameHeader], frameTypes: Seq[EntityType])

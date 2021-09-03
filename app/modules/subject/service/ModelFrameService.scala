@@ -24,58 +24,58 @@ import modules.auth.util.RoleAssertion
 import modules.core.model._
 import modules.core.repository.{ConstraintRepository, TypeRepository}
 import modules.core.service.{EntityTypeService, ModelEntityService}
-import modules.subject.model.CollectionConstraintSpec
-import modules.subject.repository.CollectionRepository
+import modules.subject.model.FrameConstraintSpec
+import modules.subject.repository.FrameRepository
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 /**
  * The service class to provide safe functionality to work with [[modules.core.model.EntityType EntityTypes]] of
- * [[modules.subject.model.Collection Collections]].
+ * [[modules.subject.model.Frame Frames]].
  * <p> Normally, this class is used with dependency injection in controller classes or as helper in other services.
  *
  * @param typeRepository       injected [[modules.core.repository.TypeRepository TypeRepository]]
  * @param constraintRepository injected [[modules.core.repository.ConstraintRepository ConstraintRepository]]
- * @param collectionRepository injected [[modules.subject.repository.CollectionRepository]]
+ * @param frameRepository injected [[modules.subject.repository.FrameRepository]]
  * @param entityTypeService    injected [[modules.core.service.EntityTypeService EntityTypeService]]
  */
-class ModelCollectionService @Inject()(typeRepository: TypeRepository,
+class ModelFrameService @Inject()(typeRepository: TypeRepository,
                                        constraintRepository: ConstraintRepository,
-                                       collectionRepository: CollectionRepository,
+                                       frameRepository: FrameRepository,
                                        entityTypeService: EntityTypeService) extends ModelEntityService {
 
   /**
-   * Get all [[modules.core.model.EntityType EntityTypes]] which describe [[modules.subject.model.Collection Collections]].
+   * Get all [[modules.core.model.EntityType EntityTypes]] which describe [[modules.subject.model.Frame Frames]].
    * <p> Fails without WORKER rights.
    * <p> This is a safe implementation and can be used by controller classes.
    *
    * <p><strong> Specific implementation to work only with [[modules.core.model.EntityType EntityTypes]] which specify
-   * [[modules.subject.model.Collection Collections]].</strong>
+   * [[modules.subject.model.Frame Frames]].</strong>
    *
    * @see [[modules.core.service.ModelEntityService#getAllTypes]]
    * @param ticket implicit authentication ticket
    * @return Future Seq[EntityType]
    */
   override def getAllTypes()(implicit ticket: Ticket): Future[Seq[EntityType]] = {
-    entityTypeService.getAllTypes(Option(CollectionConstraintSpec.COLLECTION))
+    entityTypeService.getAllTypes(Option(FrameConstraintSpec.FRAME))
   }
 
   /**
    * <p><strong> Specific implementation to work only with [[modules.core.model.EntityType EntityTypes]] which specify
-   * [[modules.subject.model.Collection Collections]].</strong>
+   * [[modules.subject.model.Frame Frames]].</strong>
    *
    * @see [[modules.core.service.ModelEntityService#getAllVersions]]
    * @param ticket implicit authentication ticket
    * @return Future Seq[VersionedEntityType]
    */
   override def getAllVersions()(implicit ticket: Ticket): Future[Seq[VersionedEntityType]] = {
-    entityTypeService.getAllVersions(Option(CollectionConstraintSpec.COLLECTION))
+    entityTypeService.getAllVersions(Option(FrameConstraintSpec.FRAME))
   }
 
   /**
    * <p><strong> Specific implementation to work only with [[modules.core.model.EntityType EntityTypes]] which specify
-   * [[modules.subject.model.Collection Collections]].</strong>
+   * [[modules.subject.model.Frame Frames]].</strong>
    *
    * @see [[modules.core.service.ModelEntityService#addVersion]]
    * @param typeId of the parent EntityType
@@ -88,7 +88,7 @@ class ModelCollectionService @Inject()(typeRepository: TypeRepository,
 
   /**
    * <p><strong> Specific implementation to work only with [[modules.core.model.EntityType EntityTypes]] which specify
-   * [[modules.subject.model.Collection Collections]].</strong>
+   * [[modules.subject.model.Frame Frames]].</strong>
    *
    * @see [[modules.core.service.ModelEntityService#deleteVersion]]
    * @param typeVersionId of the TypeVersion to delete
@@ -101,9 +101,9 @@ class ModelCollectionService @Inject()(typeRepository: TypeRepository,
       getVersionedType(typeVersionId) flatMap (versionedTypeOption => {
         if (versionedTypeOption.isEmpty) throw new Exception("No such version found")
         val versionedType = versionedTypeOption.get
-        typeRepository.getAllExtendedVersions(versionedType.entityType.id, Some(CollectionConstraintSpec.COLLECTION)) flatMap (allVersions => {
+        typeRepository.getAllExtendedVersions(versionedType.entityType.id, Some(FrameConstraintSpec.FRAME)) flatMap (allVersions => {
           if (allVersions.size == 1) throw new Exception("Every type must have at least one version")
-          collectionRepository.deleteCollectionTypeVersion(typeVersionId)
+          frameRepository.deleteFrameTypeVersion(typeVersionId)
         })
       })
     } catch {
@@ -113,7 +113,7 @@ class ModelCollectionService @Inject()(typeRepository: TypeRepository,
 
   /**
    * <p><strong> Specific implementation to work only with [[modules.core.model.EntityType EntityTypes]] which specify
-   * [[modules.subject.model.Collection Collections]].</strong>
+   * [[modules.subject.model.Frame Frames]].</strong>
    *
    * @see [[modules.core.service.ModelEntityService#forkVersion]]
    * @param typeVersionId of the TypeVersion to fork
@@ -126,7 +126,7 @@ class ModelCollectionService @Inject()(typeRepository: TypeRepository,
 
   /**
    * Get all [[modules.core.model.ExtendedEntityType ExtendedEntityTypes]] which define
-   * [[modules.subject.model.Collection Collections]].
+   * [[modules.subject.model.Frame Frames]].
    * <p> Fails without WORKER rights.
    * <p> This is a safe implementation and can be used by controller classes.
    *
@@ -134,15 +134,15 @@ class ModelCollectionService @Inject()(typeRepository: TypeRepository,
    * @return Future Seq[EntityType]
    */
   def getAllExtendedTypes()(implicit ticket: Ticket): Future[Seq[ExtendedEntityType]] = {
-    entityTypeService.getAllExtendedTypes(Option(CollectionConstraintSpec.COLLECTION))
+    entityTypeService.getAllExtendedTypes(Option(FrameConstraintSpec.FRAME))
   }
 
   /**
-   * Get an Collection [[modules.core.model.EntityType EntityType]] by its ID.
+   * Get an Frame [[modules.core.model.EntityType EntityType]] by its ID.
    * <p> This is a safe implementation and can be used by controller classes.
    *
    * <p><strong> Specific implementation to work only with [[modules.core.model.EntityType EntityTypes]] which specify
-   * [[modules.subject.model.Collection Collections]].</strong>
+   * [[modules.subject.model.Frame Frames]].</strong>
    *
    * @see [[modules.core.service.ModelEntityService#getType]]
    * @param id     id the EntityType
@@ -150,12 +150,12 @@ class ModelCollectionService @Inject()(typeRepository: TypeRepository,
    * @return Future Option[EntityType]
    */
   override def getType(id: Long)(implicit ticket: Ticket): Future[Option[EntityType]] = {
-    entityTypeService.getType(id, Option(CollectionConstraintSpec.COLLECTION))
+    entityTypeService.getType(id, Option(FrameConstraintSpec.FRAME))
   }
 
   /**
    * <p><strong> Specific implementation to work only with [[modules.core.model.EntityType EntityTypes]] which specify
-   * [[modules.subject.model.Collection Collections]].</strong>
+   * [[modules.subject.model.Frame Frames]].</strong>
    *
    * @see [[modules.core.service.ModelEntityService#getVersionedType]]
    * @param typeVersionId of the [[modules.core.model.TypeVersion TypeVersion]] to fetch
@@ -163,7 +163,7 @@ class ModelCollectionService @Inject()(typeRepository: TypeRepository,
    * @return Future Option[VersionedEntityType]
    */
   override def getVersionedType(typeVersionId: Long)(implicit ticket: Ticket): Future[Option[VersionedEntityType]] = {
-    entityTypeService.getVersionedType(typeVersionId, Option(CollectionConstraintSpec.COLLECTION))
+    entityTypeService.getVersionedType(typeVersionId, Option(FrameConstraintSpec.FRAME))
   }
 
   /**
@@ -173,7 +173,7 @@ class ModelCollectionService @Inject()(typeRepository: TypeRepository,
    * <p> This is a safe implementation and can be used by controller classes.
    *
    * <p><strong> Specific implementation to work only with [[modules.core.model.EntityType EntityTypes]] which specify
-   * [[modules.subject.model.Collection Collections]].</strong>
+   * [[modules.subject.model.Frame Frames]].</strong>
    *
    * @see [[modules.core.service.ModelEntityService#getExtendedType]]
    * @param typeVersionId id of the TypeVersion
@@ -181,12 +181,12 @@ class ModelCollectionService @Inject()(typeRepository: TypeRepository,
    * @return Future (EntityType, Seq[Constraint])
    */
   override def getExtendedType(typeVersionId: Long)(implicit ticket: Ticket): Future[ExtendedEntityType] = {
-    entityTypeService.getExtendedType(typeVersionId, Option(CollectionConstraintSpec.COLLECTION))
+    entityTypeService.getExtendedType(typeVersionId, Option(FrameConstraintSpec.FRAME))
   }
 
   /**
    * <p><strong> Specific implementation to work only with [[modules.core.model.EntityType EntityTypes]] which specify
-   * [[modules.subject.model.Collection Collections]].</strong>
+   * [[modules.subject.model.Frame Frames]].</strong>
    *
    * @see [[modules.core.service.ModelEntityService#getLatestExtendedType]]
    * @param typeId id of the parent EntityType
@@ -194,7 +194,7 @@ class ModelCollectionService @Inject()(typeRepository: TypeRepository,
    * @return Future[ExtendedEntityType]
    */
   override def getLatestExtendedType(typeId: Long)(implicit ticket: Ticket): Future[ExtendedEntityType] = {
-    entityTypeService.getLatestExtendedType(typeId, Option(CollectionConstraintSpec.COLLECTION))
+    entityTypeService.getLatestExtendedType(typeId, Option(FrameConstraintSpec.FRAME))
   }
 
   /**
@@ -203,15 +203,15 @@ class ModelCollectionService @Inject()(typeRepository: TypeRepository,
    * <p> This is a safe implementation and can be used by controller classes.
    *
    * <p><strong> Specific implementation to work only with [[modules.core.model.EntityType EntityTypes]] which specify
-   * [[modules.subject.model.Collection Collections]].</strong>
+   * [[modules.subject.model.Frame Frames]].</strong>
    *
    * @see [[modules.core.service.ModelEntityService#getTypebyValue]]
    * @param value  value filed (name) of the searched EntityType
    * @param ticket implicit authentication ticket
-   * @return Future Option[CollectionType]
+   * @return Future Option[FrameType]
    */
   override def getTypeByValue(value: String)(implicit ticket: Ticket): Future[Option[EntityType]] = {
-    entityTypeService.getEntityTypeByValue(value, Option(CollectionConstraintSpec.COLLECTION))
+    entityTypeService.getEntityTypeByValue(value, Option(FrameConstraintSpec.FRAME))
   }
 
   /**
@@ -220,7 +220,7 @@ class ModelCollectionService @Inject()(typeRepository: TypeRepository,
    * <p> This is a safe implementation and can be used by controller classes.
    *
    * <p><strong> Specific implementation to work only with [[modules.core.model.EntityType EntityTypes]] which specify
-   * [[modules.subject.model.Collection Collections]].</strong>
+   * [[modules.subject.model.Frame Frames]].</strong>
    *
    * @see [[modules.core.service.ModelEntityService#updateType]]
    * @param id     of the EntityType to update
@@ -230,13 +230,13 @@ class ModelCollectionService @Inject()(typeRepository: TypeRepository,
   override def updateType(id: Long, value: String, active: Boolean)(implicit ticket: Ticket): Future[Int] = {
     try {
       RoleAssertion.assertModeler
-      if (!CollectionLogic.isStringIdentifier(value)) throw new Exception("Invalid identifier")
+      if (!FrameLogic.isStringIdentifier(value)) throw new Exception("Invalid identifier")
 
       getLatestExtendedType(id) flatMap (latestExtendedType => {
-        val modelStatus = CollectionLogic.isConstraintModel(latestExtendedType.constraints)
+        val modelStatus = FrameLogic.isConstraintModel(latestExtendedType.constraints)
         if (!modelStatus.valid) modelStatus.throwError
 
-        typeRepository.update(EntityType(id, value, CollectionConstraintSpec.COLLECTION, active))
+        typeRepository.update(EntityType(id, value, FrameConstraintSpec.FRAME, active))
       })
     } catch {
       case e: Throwable => Future.failed(e)
@@ -249,7 +249,7 @@ class ModelCollectionService @Inject()(typeRepository: TypeRepository,
    * <p>This is a safe implementation and can be used by controller classes.
    *
    * <p><strong> Specific implementation to work only with [[modules.core.model.EntityType EntityTypes]] which specify
-   * [[modules.subject.model.Collection Collections]].</strong>
+   * [[modules.subject.model.Frame Frames]].</strong>
    *
    * @see [[modules.core.service.ModelEntityService#getConstraintsOfType]]
    * @param typeVersionId of the TypeVersion
@@ -257,7 +257,7 @@ class ModelCollectionService @Inject()(typeRepository: TypeRepository,
    * @return Future Seq[Constraint]
    */
   override def getConstraintsOfType(typeVersionId: Long)(implicit ticket: Ticket): Future[Seq[Constraint]] = {
-    entityTypeService.getConstraintsOfEntityType(typeVersionId, Option(CollectionConstraintSpec.COLLECTION))
+    entityTypeService.getConstraintsOfEntityType(typeVersionId, Option(FrameConstraintSpec.FRAME))
   }
 
   /**
@@ -265,12 +265,12 @@ class ModelCollectionService @Inject()(typeRepository: TypeRepository,
    * <p> By deleting a Constraint, the associated [[modules.core.model.TypeVersion TypeVersion]] model must stay valid.
    * If the removal of the Constraint will invalidate the model, the future will fail.
    * <p> <strong>The removal of a HasProperty or UsesPlugin Constraint leads to the system wide removal of all corresponding
-   * Collection data properties of this TypeVersion!</strong>
+   * Frame data properties of this TypeVersion!</strong>
    * <p> Fails without MODELER rights.
    * <p> This is a safe implementation and can be used by controller classes.
    *
    * <p><strong> Specific implementation to work only with [[modules.core.model.EntityType EntityTypes]] which specify
-   * [[modules.subject.model.Collection Collections]].</strong>
+   * [[modules.subject.model.Frame Frames]].</strong>
    *
    * @see [[modules.core.service.ModelEntityService#deleteConstraint]]
    * @param id     of the Constraint to delete
@@ -284,21 +284,21 @@ class ModelCollectionService @Inject()(typeRepository: TypeRepository,
         if (constraintOption.isEmpty) throw new Exception("No such Constraint found")
         val constraint = constraintOption.get
 
-        getVersionedType(constraint.typeVersionId) flatMap (collectionType => {
-          if (collectionType.isEmpty) throw new Exception("No corresponding EntityType found")
-          val typeVersionId = collectionType.get.version.id
+        getVersionedType(constraint.typeVersionId) flatMap (frameType => {
+          if (frameType.isEmpty) throw new Exception("No corresponding EntityType found")
+          val typeVersionId = frameType.get.version.id
 
           getConstraintsOfType(typeVersionId) flatMap (constraints => {
-            val deletedConstraints = CollectionLogic.removeConstraint(constraint, constraints)
+            val deletedConstraints = FrameLogic.removeConstraint(constraint, constraints)
             val remainingConstraints = constraints.filter(c => !deletedConstraints.contains(c))
 
-            val status = CollectionLogic.isConstraintModel(remainingConstraints)
+            val status = FrameLogic.isConstraintModel(remainingConstraints)
             if (!status.valid) status.throwError
 
             val deletedPropertyConstraints = deletedConstraints.filter(_.c == ConstraintType.HasProperty)
             val deletedOtherConstraints = deletedConstraints diff deletedPropertyConstraints
 
-            collectionRepository.deleteConstraints(typeVersionId, deletedPropertyConstraints, deletedOtherConstraints)
+            frameRepository.deleteConstraints(typeVersionId, deletedPropertyConstraints, deletedOtherConstraints)
           })
         })
       })
@@ -315,7 +315,7 @@ class ModelCollectionService @Inject()(typeRepository: TypeRepository,
    * <p> This is a safe implementation and can be used by controller classes.
    *
    * <p><strong> Specific implementation to work only with [[modules.core.model.EntityType EntityTypes]] which specify
-   * [[modules.subject.model.Collection Collections]].</strong>
+   * [[modules.subject.model.Frame Frames]].</strong>
    *
    * @see [[modules.core.service.ModelEntityService#addConstraint]]
    * @param c             String value of the ConstraintType
@@ -330,24 +330,24 @@ class ModelCollectionService @Inject()(typeRepository: TypeRepository,
       RoleAssertion.assertModeler
       //FIXME the ConstraintType.find() needs a check before, the rules can be empty and lead to a unspecified exception
       val newConstraint = Constraint(0, ConstraintType.find(c).get, v1, v2, None, typeVersionId)
-      val constraintStatus = CollectionLogic.isValidConstraint(newConstraint)
+      val constraintStatus = FrameLogic.isValidConstraint(newConstraint)
       if (!constraintStatus.valid) constraintStatus.throwError
 
-      getVersionedType(newConstraint.typeVersionId) flatMap (collectionType => {
-        if (collectionType.isEmpty) throw new Exception("No corresponding EntityType found")
+      getVersionedType(newConstraint.typeVersionId) flatMap (frameType => {
+        if (frameType.isEmpty) throw new Exception("No corresponding EntityType found")
 
         getConstraintsOfType(newConstraint.typeVersionId) flatMap (constraints => {
 
-          val newConstraints = CollectionLogic.applyConstraint(newConstraint)
+          val newConstraints = FrameLogic.applyConstraint(newConstraint)
           val newConstraintModel = constraints ++ newConstraints
 
-          val modelStatus = CollectionLogic.isConstraintModel(newConstraintModel)
+          val modelStatus = FrameLogic.isConstraintModel(newConstraintModel)
           if (!modelStatus.valid) modelStatus.throwError
 
           val newPropertyConstraints = newConstraints.filter(_.c == ConstraintType.HasProperty)
           val newOtherConstraints = newConstraints diff newPropertyConstraints
 
-          collectionRepository.addConstraints(typeVersionId, newPropertyConstraints, newOtherConstraints)
+          frameRepository.addConstraints(typeVersionId, newPropertyConstraints, newOtherConstraints)
         })
       })
     } catch {
@@ -356,13 +356,13 @@ class ModelCollectionService @Inject()(typeRepository: TypeRepository,
   }
 
   /**
-   * Delete a [[modules.core.model.EntityType EntityType]] of a Collection.
-   * <p> <strong> This operation will also delete all associated Constraints, TypeVersions and all Collections which have this type! </strong>
+   * Delete a [[modules.core.model.EntityType EntityType]] of a Frame.
+   * <p> <strong> This operation will also delete all associated Constraints, TypeVersions and all Frames which have this type! </strong>
    * <p> Fails without MODELER rights
    * <p> This is a safe implementation and can be used by controller classes.
    *
    * <p><strong> Specific implementation to work only with [[modules.core.model.EntityType EntityTypes]] which specify
-   * [[modules.subject.model.Collection Collections]].</strong>
+   * [[modules.subject.model.Frame Frames]].</strong>
    *
    * @see [[modules.core.service.ModelEntityService#deleteType]]
    * @param id     of the EntityType
@@ -372,14 +372,14 @@ class ModelCollectionService @Inject()(typeRepository: TypeRepository,
   override def deleteType(id: Long)(implicit ticket: Ticket): Future[Unit] = {
     try {
       RoleAssertion.assertModeler
-      collectionRepository.deleteCollectionType(id)
+      frameRepository.deleteFrameType(id)
     } catch {
       case e: Throwable => Future.failed(e)
     }
   }
 
   /**
-   * Get all possible children of a [[modules.subject.model.Collection Collection]].
+   * Get all possible children of a [[modules.subject.model.Frame Frame]].
    * <p> Only the by CanContain [[modules.core.model.Constraint Constraints]] defined string values are used
    * without checking, if such a [[modules.core.model.EntityType EntityType]] exists actually.
    * <p> Fails without WORKER rights
@@ -392,8 +392,8 @@ class ModelCollectionService @Inject()(typeRepository: TypeRepository,
   def getChildren(typeVersionId: Long)(implicit ticket: Ticket): Future[Seq[ExtendedEntityType]] = {
     try {
       RoleAssertion.assertWorker
-      typeRepository.getExtended(typeVersionId, Some(CollectionConstraintSpec.COLLECTION)) flatMap (typeData => {
-        val childValues = CollectionLogic.findChildren(typeData.get.constraints)
+      typeRepository.getExtended(typeVersionId, Some(FrameConstraintSpec.FRAME)) flatMap (typeData => {
+        val childValues = FrameLogic.findChildren(typeData.get.constraints)
         typeRepository.getAllExtended(childValues).map(values => values.groupBy(_.entityType).mapValues(extendedTypes => extendedTypes.maxBy(_.version.version)).values toSeq)
       })
     } catch {

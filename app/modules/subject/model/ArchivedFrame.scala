@@ -18,13 +18,11 @@
 
 package modules.subject.model
 
-import modules.core.model.EntityType
+import modules.core.model.Property
 
 /**
- * The CollectionTypeComplex is a helper class to wrap several [[modules.subject.model.CollectionHeader CollectionHeaders]]
- * together with all [[modules.core.model.ExtendedEntityType ExtendedEntityTypes]] which define [[modules.subject.model.Collection Collections]].
- *
- * @param collections   CollectionHeaders
- * @param collectionTypes all EntityTypes which define Collections
+ * TODO add doc
+ * @param frame
+ * @param properties
  */
-case class CollectionTypeComplex(collections: Seq[CollectionHeader], collectionTypes: Seq[EntityType])
+case class ArchivedFrame(frame: Frame, properties: Seq[Property])

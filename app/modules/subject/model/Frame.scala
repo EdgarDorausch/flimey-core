@@ -21,8 +21,8 @@ package modules.subject.model
 import java.sql.Timestamp
 
 /**
- * A Collection represents the accumulation of several [[modules.subject.model.Subject Subjects]].
- * In other words, a Collection is a Subject tree node.
+ * A Frame represents the accumulation of several [[modules.subject.model.Subject Subjects]].
+ * In other words, a Frame is a Subject tree node.
  * <p> Has a repository representation.
  *
  * @param id       unique identifier (primary key)
@@ -31,17 +31,17 @@ import java.sql.Timestamp
  * @param status   progress status
  * @param created  creation time
  */
-case class Collection(id: Long, entityId: Long, typeVersionId: Long, status: SubjectState.State, created: Timestamp)
+case class Frame(id: Long, entityId: Long, typeVersionId: Long, status: SubjectState.State, created: Timestamp)
 
-object Collection {
+object Frame {
 
-  def applyRaw(id: Long, entityId: Long, typeVersionId: Long, status: String, created: Timestamp): Collection = {
-    Collection(id, entityId, typeVersionId, SubjectState.withName(status), created)
+  def applyRaw(id: Long, entityId: Long, typeVersionId: Long, status: String, created: Timestamp): Frame = {
+    Frame(id, entityId, typeVersionId, SubjectState.withName(status), created)
   }
 
-  def unapplyToRaw(arg: Collection): Option[(Long, Long, Long, String, Timestamp)] =
+  def unapplyToRaw(arg: Frame): Option[(Long, Long, Long, String, Timestamp)] =
     Option((arg.id, arg.entityId, arg.typeVersionId, arg.status.toString, arg.created))
 
-  val tupledRaw: ((Long, Long, Long, String, Timestamp)) => Collection = (this.applyRaw _).tupled
+  val tupledRaw: ((Long, Long, Long, String, Timestamp)) => Frame = (this.applyRaw _).tupled
 
 }

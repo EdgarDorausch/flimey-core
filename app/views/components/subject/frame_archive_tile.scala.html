@@ -16,12 +16,12 @@
 * You should have received a copy of the GNU General Public License
 * along with this program. If not, see <https://www.gnu.org/licenses/>.
 * *@
-@import modules.subject.model.ArchivedCollection
-@(data: ArchivedCollection)(implicit request: RequestHeader, messagesProvider: MessagesProvider)
+@import modules.subject.model.ArchivedFrame
+@(data: ArchivedFrame)(implicit request: RequestHeader, messagesProvider: MessagesProvider)
 
 <div class="card shadowed p-ltrb-mini relative-container m-t-small">
     <div class="float-top-right m-t-mini m-r-mini">
-        <a href="@routes.CollectionController.getCollection(data.collection.id)">
+        <a href="@routes.FrameController.getFrame(data.frame.id)">
             <i class="material-icons fc-prim">open_in_new</i>
         </a>
     </div>
@@ -33,8 +33,8 @@
     }
     </div>
     <div class="flex-container horizontal stretched m-t-small">
-        <div>@data.collection.status</div>
+        <div>@data.frame.status</div>
         <div class="weight-2"></div>
-        <div class="padding-left-10">created at: @data.collection.created.format("dd.MM.yyyy HH:mm")</div>
+        <div class="padding-left-10">created at: @data.frame.created.format("dd.MM.yyyy HH:mm")</div>
     </div>
 </div>

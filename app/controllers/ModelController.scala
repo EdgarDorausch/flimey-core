@@ -25,8 +25,8 @@ import modules.asset.service.ModelAssetService
 import modules.auth.model.Ticket
 import modules.core.formdata.{EditTypeForm, NewConstraintForm, NewTypeForm}
 import modules.core.service.{EntityTypeService, ModelEntityService}
-import modules.subject.model.{SubjectConstraintSpec, CollectionConstraintSpec}
-import modules.subject.service.{ModelSubjectService, ModelCollectionService}
+import modules.subject.model.{SubjectConstraintSpec, FrameConstraintSpec}
+import modules.subject.service.{ModelSubjectService, ModelFrameService}
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc._
@@ -40,7 +40,7 @@ import scala.concurrent.Future
  * @param cc                      injected ControllerComponents
  * @param withAuthentication      injected AuthenticationAction
  * @param modelAssetService       injected [[modules.asset.service.ModelAssetService ModelAssetService]] for Asset model logic
- * @param modelCollectionService  injected [[modules.subject.service.ModelCollectionService ModelCollectionService]] for Collection model logic
+ * @param modelFrameService  injected [[modules.subject.service.ModelFrameService ModelFrameService]] for Frame model logic
  * @param modelSubjectService injected [[modules.subject.service.ModelSubjectService MidelSubjectService]] for Subject model logic
  * @param entityTypeService       injected [[modules.core.service.EntityTypeService EntityTypeService]] for generic type logic
  */
@@ -48,7 +48,7 @@ import scala.concurrent.Future
 class ModelController @Inject()(cc: ControllerComponents,
                                 withAuthentication: AuthenticationFilter,
                                 modelAssetService: ModelAssetService,
-                                modelCollectionService: ModelCollectionService,
+                                modelFrameService: ModelFrameService,
                                 modelSubjectService: ModelSubjectService,
                                 entityTypeService: EntityTypeService)
   extends AbstractController(cc) with I18nSupport with Logging with Authentication {
@@ -67,7 +67,7 @@ class ModelController @Inject()(cc: ControllerComponents,
     entityTypeService.getType(typeId) map {
       case t if t.isEmpty => throw new Exception("No such EntityType found")
       case t if t.get.typeOf == AssetConstraintSpec.ASSET => modelAssetService
-      case t if t.get.typeOf == CollectionConstraintSpec.COLLECTION => modelCollectionService
+      case t if t.get.typeOf == FrameConstraintSpec.FRAME => modelFrameService
       case t if t.get.typeOf == SubjectConstraintSpec.SUBJECT => modelSubjectService
       case _ => throw new Exception("Unknown error fetching EntityType")
     }
@@ -108,7 +108,7 @@ class ModelController @Inject()(cc: ControllerComponents,
           },
           data => {
             val parentName = data.typeOf
-            if (!Seq(AssetConstraintSpec.ASSET, CollectionConstraintSpec.COLLECTION, SubjectConstraintSpec.SUBJECT).contains(parentName)) {
+            if (!Seq(AssetConstraintSpec.ASSET, FrameConstraintSpec.FRAME, SubjectConstraintSpec.SUBJECT).contains(parentName)) {
               Future.failed(new Exception("Select a valid parent type!"))
             } else {
               entityTypeService.addType(data.value, parentName) map { _ =>

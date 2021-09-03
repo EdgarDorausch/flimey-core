@@ -41,15 +41,15 @@ import scala.concurrent.Future
  *
  * @param subjectRepository   injected [[modules.subject.repository.SubjectRepository SubjectRepository]]
  * @param entityRepository        injected [[modules.core.repository.FlimeyEntityRepository FlimeyEntityRepository]]
- * @param collectionService       injected [[modules.subject.service.CollectionService CollectionService]]
+ * @param frameService       injected [[modules.subject.service.FrameService FrameService]]
  * @param modelSubjectService injected [[modules.subject.service.ModelSubjectService ModelSubjectService]]
- * @param modelCollectionService  injected [[modules.subject.service.ModelCollectionService ModelCollectionService]]
+ * @param modelFrameService  injected [[modules.subject.service.ModelFrameService ModelFrameService]]
  * @param newsService             injected [[modules.news.service.NewsService]]
  */
 class SubjectService @Inject()(subjectRepository: SubjectRepository,
-                                   collectionService: CollectionService,
+                                   frameService: FrameService,
                                    modelSubjectService: ModelSubjectService,
-                                   modelCollectionService: ModelCollectionService,
+                                   modelFrameService: ModelFrameService,
                                    entityRepository: FlimeyEntityRepository,
                                    newsService: NewsService) {
 
@@ -58,37 +58,37 @@ class SubjectService @Inject()(subjectRepository: SubjectRepository,
    * <p> To create the Subject, the newest available [[modules.core.model.TypeVersion TypeVersion]] of the selected
    * [[modules.core.model.EntityType EntityType]].
    * <p> Fails without WORKER rights.
-   * <p> Requires EDITOR rights in the parent Collection.
+   * <p> Requires EDITOR rights in the parent Frame.
    * <p> This is a safe implementation and can be used by controller classes.
    *
-   * @param collectionId id of the parent [[modules.subject.model.Collection Collection]]
+   * @param frameId id of the parent [[modules.subject.model.Frame Frame]]
    * @param typeId       id of the Subject [[modules.core.model.EntityType]]
    * @param propertyData of the new Subject (must complete the Subject TypeVersion model)
    * @param ticket       implicit authentication ticket
    * @return Future[Unit]
    */
-  def addSubject(collectionId: Long, typeId: Long, propertyData: Seq[String])(implicit ticket: Ticket): Future[Unit] = {
+  def addSubject(frameId: Long, typeId: Long, propertyData: Seq[String])(implicit ticket: Ticket): Future[Unit] = {
     try {
       RoleAssertion.assertWorker
-      collectionService.getSlimCollection(collectionId) flatMap (collectionHeader => {
-        ViewerAssertion.assertEdit(collectionHeader.viewers)
+      frameService.getSlimFrame(frameId) flatMap (frameHeader => {
+        ViewerAssertion.assertEdit(frameHeader.viewers)
         for {
-          collectionTypeData <- modelCollectionService.getExtendedType(collectionHeader.collection.typeVersionId)
+          frameTypeData <- modelFrameService.getExtendedType(frameHeader.frame.typeVersionId)
           subjectTypeData <- modelSubjectService.getLatestExtendedType(typeId)
         } yield {
-          if (!collectionTypeData.entityType.active) throw new Exception("The selected Collection Type is not defined or active")
+          if (!frameTypeData.entityType.active) throw new Exception("The selected Frame Type is not defined or active")
           if (!subjectTypeData.entityType.active) throw new Exception("The selected Subject Type is not defined or active")
-          val extensionStatus = SubjectLogic.canBeChildOf(subjectTypeData.entityType.value, collectionTypeData.constraints)
+          val extensionStatus = SubjectLogic.canBeChildOf(subjectTypeData.entityType.value, frameTypeData.constraints)
           if (!extensionStatus.valid) extensionStatus.throwError
 
           val properties = SubjectLogic.derivePropertiesFromRawData(subjectTypeData.constraints, propertyData)
           val configurationStatus = SubjectLogic.isModelConfiguration(subjectTypeData.constraints, properties)
           if (!configurationStatus.valid) configurationStatus.throwError
 
-          val newSubject = Subject(0, 0, collectionHeader.collection.id, subjectTypeData.version.id, SubjectState.CREATED, Timestamp.from(Instant.now()))
+          val newSubject = Subject(0, 0, frameHeader.frame.id, subjectTypeData.version.id, SubjectState.CREATED, Timestamp.from(Instant.now()))
           for {
             subjectId <- subjectRepository.add(newSubject, properties)
-            _ <- newsService.addSubjectEvent(collectionId, subjectId, NewsType.CREATED, collectionHeader.viewers.getAllViewingGroups.map(_.id))
+            _ <- newsService.addSubjectEvent(frameId, subjectId, NewsType.CREATED, frameHeader.viewers.getAllViewingGroups.map(_.id))
           } yield ()
 
         }
@@ -156,12 +156,12 @@ class SubjectService @Inject()(subjectRepository: SubjectRepository,
       getSubject(subjectId) flatMap (extendedSubject => {
         //Check if the User can edit this Subject
         ViewerAssertion.assertEdit(extendedSubject.viewers)
-        val state = CollectionLogic.parseState(newState)
+        val state = FrameLogic.parseState(newState)
         val updateStatus = SubjectLogic.isValidStateTransition(extendedSubject.subject.state, state)
         if (!updateStatus.valid) updateStatus.throwError
         for {
           _ <- subjectRepository.updateState(subjectId, state)
-          _ <- newsService.addSubjectEvent(extendedSubject.subject.collectionId, subjectId, NewsType.STATE_CHANGE,
+          _ <- newsService.addSubjectEvent(extendedSubject.subject.frameId, subjectId, NewsType.STATE_CHANGE,
             extendedSubject.viewers.getAllViewingGroups.map(_.id))
         } yield ()
       })
@@ -212,7 +212,7 @@ class SubjectService @Inject()(subjectRepository: SubjectRepository,
         ViewerAssertion.assertMaintain(extendedSubject.viewers)
         for {
           _ <- subjectRepository.delete(extendedSubject.subject)
-          _ <- newsService.addSubjectEvent(extendedSubject.subject.collectionId, id, NewsType.DELETED,
+          _ <- newsService.addSubjectEvent(extendedSubject.subject.frameId, id, NewsType.DELETED,
             extendedSubject.viewers.getAllViewingGroups.map(_.id))
         } yield ()
       })

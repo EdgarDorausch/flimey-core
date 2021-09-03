@@ -27,17 +27,17 @@ import modules.news.model.NewsType
 object NewsRouter {
 
   /**
-   * Build a route targeting a [[modules.subject.model.Collection Collection]].
+   * Build a route targeting a [[modules.subject.model.Frame Frame]].
    * <p> If the [[modules.news.model.NewsType NewsType]] is DELETED, the link will be empty because no link target
    * will exist.
    *
-   * @param collectionId id of the Collection
+   * @param frameId id of the Frame
    * @param newsType     NewsType o which triggered the [[modules.news.model.NewsEvent NewsEvent]]
    * @return String
    */
-  def buildRoute(collectionId: Long, newsType: NewsType.Value): String = {
+  def buildRoute(frameId: Long, newsType: NewsType.Value): String = {
     if (newsType != NewsType.DELETED) {
-      "/collection/" + collectionId.toString
+      "/frame/" + frameId.toString
     } else {
       "#"
     }
@@ -48,14 +48,14 @@ object NewsRouter {
    * * <p> If the [[modules.news.model.NewsType NewsType]] is DELETED, the link will be empty because no link target
    * * will exist.
    *
-   * @param collectionId  id of the parent [[modules.subject.model.Collection Collection]]
+   * @param frameId  id of the parent [[modules.subject.model.Frame Frame]]
    * @param subjectId id of the Subject
    * @param newsType      newsType NewsType o which triggered the [[modules.news.model.NewsEvent NewsEvent]]
    * @return String
    */
-  def buildRoute(subjectId: Long, collectionId: Long, newsType: NewsType.Value): String = {
+  def buildRoute(subjectId: Long, frameId: Long, newsType: NewsType.Value): String = {
     if (newsType != NewsType.DELETED) {
-      "/collection/" + collectionId.toString
+      "/frame/" + frameId.toString
     } else {
       "#"
     }

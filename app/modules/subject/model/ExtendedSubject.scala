@@ -27,6 +27,6 @@ import modules.user.model.ViewerCombinator
  *
  * @param subject Subject (contains only id and type reference)
  * @param properties  all Properties of the Subject
- * @param viewers     [[modules.user.model.ViewerCombinator ViewerCombinator]] of the parent [[modules.subject.model.Collection Collection]]
+ * @param viewers     [[modules.user.model.ViewerCombinator ViewerCombinator]] of the parent [[modules.subject.model.Frame Frame]]
  */
 case class ExtendedSubject(subject: Subject, properties: Seq[Property], viewers: ViewerCombinator, entityType: EntityType)

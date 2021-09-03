@@ -15,13 +15,13 @@
 * You should have received a copy of the GNU General Public License
 * along with this program. If not, see <https://www.gnu.org/licenses/>.
 * *@
-@import modules.subject.model.ExtendedCollection
+@import modules.subject.model.ExtendedFrame
 @import views.html.components.core.{meta_entity, viewer_tag_box}
-@(data: ExtendedCollection, typeValue: String)(implicit request: RequestHeader, messagesProvider: MessagesProvider)
+@(data: ExtendedFrame, typeValue: String)(implicit request: RequestHeader, messagesProvider: MessagesProvider)
 
 <div class="meta-entity-container card shadowed relative-container p-ltrb-mini">
     <div class="float-top-right">
-        <a href="@routes.CollectionController.getCollectionEditor(data.collection.id)">
+        <a href="@routes.FrameController.getFrameEditor(data.frame.id)">
             <i class="material-icons fc-prim">create</i>
         </a>
     </div>
@@ -33,12 +33,12 @@
         }
     </div>
     <div class="flex-container horizontal left-align m-t-small">
-        <div>status: @data.collection.status </div>
-        <a href="@routes.CollectionController.getStateEditor(data.collection.id)">
+        <div>status: @data.frame.status </div>
+        <a href="@routes.FrameController.getStateEditor(data.frame.id)">
             <i class="material-icons fc-prim">swap_horiz</i>
         </a>
     </div>
-    <div> created at: @data.collection.created.format("dd.MM.yyyy HH:mm")</div>
+    <div> created at: @data.frame.created.format("dd.MM.yyyy HH:mm")</div>
     <div class="m-t-small">
         @for(property <- data.properties) {
             @if(property.key != "Name") {

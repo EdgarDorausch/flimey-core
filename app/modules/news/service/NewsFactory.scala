@@ -26,28 +26,28 @@ import modules.news.model.{NewsEvent, NewsType}
 trait NewsFactory {
 
   /**
-   * Create a new [[modules.news.model.NewsEvent NewsEvent]] from a [[modules.subject.model.Collection Collection]].
+   * Create a new [[modules.news.model.NewsEvent NewsEvent]] from a [[modules.subject.model.Frame Frame]].
    *
-   * @param collectionId id of the Collection
+   * @param frameId id of the Frame
    * @param newsType     [[modules.news.model.NewsType NewsType]] which triggered the NewsEvent
    * @param description  an optional short description
    * @return NewsEvent
    */
-  def eventFrom(collectionId: Long, newsType: NewsType.Value, description: Option[String]): NewsEvent = {
-    NewsEvent(0, newsType, 1, description.getOrElse(""), NewsRouter.buildRoute(collectionId, newsType), Timestamp.from(Instant.now()))
+  def eventFrom(frameId: Long, newsType: NewsType.Value, description: Option[String]): NewsEvent = {
+    NewsEvent(0, newsType, 1, description.getOrElse(""), NewsRouter.buildRoute(frameId, newsType), Timestamp.from(Instant.now()))
   }
 
   /**
    * Create a new [[modules.news.model.NewsEvent NewsEvent]] from a [[modules.subject.model.Subject Subject]].
    *
-   * @param collectionId  id of the parent [[modules.subject.model.Collection Collection]]
+   * @param frameId  id of the parent [[modules.subject.model.Frame Frame]]
    * @param subjectId id of the Subject
    * @param newsType      [[modules.news.model.NewsType NewsType]] which triggered the NewsEvent
    * @param description   an optional short description
    * @return
    */
-  def eventFrom(collectionId: Long, subjectId: Long, newsType: NewsType.Value, description: Option[String]): NewsEvent = {
-    NewsEvent(0, newsType, 1, description.getOrElse(""), NewsRouter.buildRoute(collectionId, subjectId, newsType), Timestamp.from(Instant.now()))
+  def eventFrom(frameId: Long, subjectId: Long, newsType: NewsType.Value, description: Option[String]): NewsEvent = {
+    NewsEvent(0, newsType, 1, description.getOrElse(""), NewsRouter.buildRoute(frameId, subjectId, newsType), Timestamp.from(Instant.now()))
   }
 
 }

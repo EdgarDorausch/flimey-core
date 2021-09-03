@@ -3,16 +3,16 @@ package modules.subject.model
 import modules.core.model.{ConstraintType, PropertyType}
 
 /**
- * Object with static helper functionality for Constraints used by Collections.
+ * Object with static helper functionality for Constraints used by Frames.
  */
-object CollectionConstraintSpec {
+object FrameConstraintSpec {
 
-  val COLLECTION: String = "collection"
+  val FRAME: String = "frame"
 
   /**
    * Sequence of possible parent types.
    */
-  val canDeriveFrom: Seq[String] = Seq[String](COLLECTION)
+  val canDeriveFrom: Seq[String] = Seq[String](FRAME)
 
   /**
    * Sequence of possible property data types.

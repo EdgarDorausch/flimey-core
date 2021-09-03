@@ -30,7 +30,7 @@ import modules.core.service.EntityTypeService
 import modules.news.model.NewsType
 import modules.news.service.NewsService
 import modules.subject.model._
-import modules.subject.repository.CollectionRepository
+import modules.subject.repository.FrameRepository
 import modules.user.model.GroupStats
 import modules.user.service.GroupService
 import modules.user.util.ViewerAssertion
@@ -39,56 +39,56 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 /**
- * The service class to provide safe functionality to work with Collections.
+ * The service class to provide safe functionality to work with Frames.
  * <p> Normally, this class is used with dependency injection in controller classes or as helper in other services.
  *
  * @param typeRepository         injected [[modules.core.repository.TypeRepository TypeRepository]]
- * @param collectionRepository   injected [[modules.subject.repository.CollectionRepository CollectionRepository]]
+ * @param frameRepository   injected [[modules.subject.repository.FrameRepository FrameRepository]]
  * @param entityRepository       injected [[modules.core.repository.FlimeyEntityRepository FlimeyEntityRepository]]
- * @param modelCollectionService injected [[modules.subject.service.ModelCollectionService ModelCollectionService]]
+ * @param modelFrameService injected [[modules.subject.service.ModelFrameService ModelFrameService]]
  * @param groupService           injected [[modules.user.service.GroupService GroupService]]
  * @param newsService            injected [[modules.news.service.NewsService NewsService]]
  */
-class CollectionService @Inject()(typeRepository: TypeRepository,
-                                  collectionRepository: CollectionRepository,
+class FrameService @Inject()(typeRepository: TypeRepository,
+                                  frameRepository: FrameRepository,
                                   entityRepository: FlimeyEntityRepository,
-                                  modelCollectionService: ModelCollectionService,
+                                  modelFrameService: ModelFrameService,
                                   entityTypeService: EntityTypeService,
                                   groupService: GroupService,
                                   newsService: NewsService) {
 
   /**
-   * Add a new [[modules.subject.model.Collection Collection]].
-   * <p> A new Collection will always be created using the newest [[modules.core.model.TypeVersion TypeVersion]] available
+   * Add a new [[modules.subject.model.Frame Frame]].
+   * <p> A new Frame will always be created using the newest [[modules.core.model.TypeVersion TypeVersion]] available
    * for the specified [[modules.core.model.EntityType EntityType]].
    * <p> Invalid and duplicate names in maintainers, editors and viewers is filtered out and does not lead to exceptions.
-   * <p> <strong> Note: a User (defined by his ticket) can create Collections he is unable to access himself (by assigning
+   * <p> <strong> Note: a User (defined by his ticket) can create Frames he is unable to access himself (by assigning
    * other [[modules.user.model.Group Groups]]</strong>
    * <p> Fails without WORKER rights.
    * <p> This is a safe implementation and can be used by controller classes.
    *
-   * @param typeId       id of the Collection [[modules.core.model.EntityType]]
-   * @param propertyData of the new Collection (must complete the Collection EntityType model)
+   * @param typeId       id of the Frame [[modules.core.model.EntityType]]
+   * @param propertyData of the new Frame (must complete the Frame EntityType model)
    * @param maintainers  names of Groups to serve as maintainers
    * @param editors      names of Groups to serve as editors
    * @param viewers      names of Groups to serve as viewers
    * @param ticket       implicit authentication ticket
    * @return Future[Unit]
    */
-  def addCollection(typeId: Long, propertyData: Seq[String], maintainers: Seq[String], editors: Seq[String],
+  def addFrame(typeId: Long, propertyData: Seq[String], maintainers: Seq[String], editors: Seq[String],
                     viewers: Seq[String])(implicit ticket: Ticket): Future[Unit] = {
     try {
       RoleAssertion.assertWorker
-      modelCollectionService.getLatestExtendedType(typeId) flatMap (extendedEntityType => {
-        if (!extendedEntityType.entityType.active) throw new Exception("The selected Collection Type is not active")
-        val properties = CollectionLogic.derivePropertiesFromRawData(extendedEntityType.constraints, propertyData)
-        val configurationStatus = CollectionLogic.isModelConfiguration(extendedEntityType.constraints, properties)
+      modelFrameService.getLatestExtendedType(typeId) flatMap (extendedEntityType => {
+        if (!extendedEntityType.entityType.active) throw new Exception("The selected Frame Type is not active")
+        val properties = FrameLogic.derivePropertiesFromRawData(extendedEntityType.constraints, propertyData)
+        val configurationStatus = FrameLogic.isModelConfiguration(extendedEntityType.constraints, properties)
         if (!configurationStatus.valid) configurationStatus.throwError
         groupService.getAllGroups flatMap (allGroups => {
-          val aViewers = CollectionLogic.deriveViewersFromData(maintainers :+ GroupStats.SYSTEM_GROUP, editors, viewers, allGroups)
+          val aViewers = FrameLogic.deriveViewersFromData(maintainers :+ GroupStats.SYSTEM_GROUP, editors, viewers, allGroups)
           for {
-            collectionId <- collectionRepository.add(Collection(0, 0, extendedEntityType.version.id, SubjectState.CREATED, Timestamp.from(Instant.now())), properties, aViewers)
-            _ <- newsService.addCollectionEvent(collectionId, NewsType.CREATED, aViewers.map(_.viewerId).toSet)
+            frameId <- frameRepository.add(Frame(0, 0, extendedEntityType.version.id, SubjectState.CREATED, Timestamp.from(Instant.now())), properties, aViewers)
+            _ <- newsService.addFrameEvent(frameId, NewsType.CREATED, aViewers.map(_.viewerId).toSet)
           } yield ()
         })
       })
@@ -98,7 +98,7 @@ class CollectionService @Inject()(typeRepository: TypeRepository,
   }
 
   /**
-   * Update a [[modules.subject.model.Collection Collection]] with its [[modules.core.model.Property Properties]]
+   * Update a [[modules.subject.model.Frame Frame]] with its [[modules.core.model.Property Properties]]
    * and [[modules.core.model.Viewer Viewers]].
    * <p> All Properties (if updated or not) must be passed, else the configuration can not be verified.
    * <p> All Viewers (old AND new ones) must be passed as string. Old viewers that are not passed will be deleted.
@@ -109,48 +109,48 @@ class CollectionService @Inject()(typeRepository: TypeRepository,
    * <p> If Viewers are changed, MAINTAINER rights are required.
    * <p> This is a safe implementation and can be used by controller classes.
    *
-   * @param collectionId       id of the Collection to update
-   * @param propertyUpdateData all Properties of the changed Collection (can contain updated values)
+   * @param frameId       id of the Frame to update
+   * @param propertyUpdateData all Properties of the changed Frame (can contain updated values)
    * @param maintainers        all (old and new) Group names of Viewers with role MAINTAINER
    * @param editors            all (old and new) Group names of Viewers with role EDITOR
    * @param viewers            all (old and new) Group names of Viewers with role VIEWER
    * @param ticket             implicit authentication ticket
    * @return Future[Unit]
    */
-  def updateCollection(collectionId: Long, propertyUpdateData: Seq[String], maintainers: Seq[String], editors: Seq[String],
+  def updateFrame(frameId: Long, propertyUpdateData: Seq[String], maintainers: Seq[String], editors: Seq[String],
                        viewers: Seq[String])(implicit ticket: Ticket): Future[Unit] = {
     try {
       RoleAssertion.assertWorker
-      getSlimCollection(collectionId) flatMap (collectionHeader => {
+      getSlimFrame(frameId) flatMap (frameHeader => {
 
-        //Check if the User can edit this Collection
-        ViewerAssertion.assertEdit(collectionHeader.viewers)
+        //Check if the User can edit this Frame
+        ViewerAssertion.assertEdit(frameHeader.viewers)
 
-        if(collectionHeader.collection.status == SubjectState.ARCHIVED) throw new Exception("This element is already archived")
+        if(frameHeader.frame.status == SubjectState.ARCHIVED) throw new Exception("This element is already archived")
 
         //Parse updated properties and verify the configuration
-        val properties = collectionHeader.properties
+        val properties = frameHeader.properties
         val oldConfig = properties
-        val newConfig = CollectionLogic.mapConfigurations(oldConfig, propertyUpdateData)
+        val newConfig = FrameLogic.mapConfigurations(oldConfig, propertyUpdateData)
 
-        //check if the EntityType of the Collection is active (else it can not be edited)
-        modelCollectionService.getExtendedType(collectionHeader.collection.typeVersionId) flatMap (extendedEntityType => {
-          if (!extendedEntityType.entityType.active) throw new Exception("The selected Collection Type is not active")
-          val configurationStatus = CollectionLogic.isModelConfiguration(extendedEntityType.constraints, newConfig)
+        //check if the EntityType of the Frame is active (else it can not be edited)
+        modelFrameService.getExtendedType(frameHeader.frame.typeVersionId) flatMap (extendedEntityType => {
+          if (!extendedEntityType.entityType.active) throw new Exception("The selected Frame Type is not active")
+          val configurationStatus = FrameLogic.isModelConfiguration(extendedEntityType.constraints, newConfig)
           if (!configurationStatus.valid) configurationStatus.throwError
 
           groupService.getAllGroups flatMap (groups => {
 
-            val (viewersToDelete, viewersToInsert) = CollectionLogic.getViewerChanges(
+            val (viewersToDelete, viewersToInsert) = FrameLogic.getViewerChanges(
               maintainers.toSet + GroupStats.SYSTEM_GROUP,
               editors.toSet,
               viewers.toSet,
-              collectionHeader.viewers,
+              frameHeader.viewers,
               groups,
-              collectionHeader.collection.entityId)
+              frameHeader.frame.entityId)
 
             if (viewersToDelete.nonEmpty || viewersToInsert.nonEmpty) {
-              ViewerAssertion.assertMaintain(collectionHeader.viewers)
+              ViewerAssertion.assertMaintain(frameHeader.viewers)
             }
             entityRepository.update(newConfig, viewersToDelete, viewersToInsert)
           })
@@ -162,39 +162,39 @@ class CollectionService @Inject()(typeRepository: TypeRepository,
   }
 
   /**
-   * Update the [[modules.subject.model.SubjectState State]] of a [[modules.subject.model.Collection Collection]].
+   * Update the [[modules.subject.model.SubjectState State]] of a [[modules.subject.model.Frame Frame]].
    * <p> Fails without WORKER rights.
    * <p> The requesting User must be EDITOR.
    * <p> This is a safe implementation and can be used by controller classes.
    *
-   * @param collectionId id of the Collection to update
+   * @param frameId id of the Frame to update
    * @param newState     state string value
    * @param ticket       implicit authentication ticket
    * @return Future[Unit]
    */
-  def updateState(collectionId: Long, newState: String)(implicit ticket: Ticket): Future[Int] = {
+  def updateState(frameId: Long, newState: String)(implicit ticket: Ticket): Future[Int] = {
     try {
       RoleAssertion.assertWorker
-      getCollection(collectionId) flatMap (collectionData => {
-        val (collection, _) = collectionData
-        //Check if the User can edit this Collection
-        ViewerAssertion.assertEdit(collection.viewers)
-        val state = CollectionLogic.parseState(newState)
+      getFrame(frameId) flatMap (frameData => {
+        val (frame, _) = frameData
+        //Check if the User can edit this Frame
+        ViewerAssertion.assertEdit(frame.viewers)
+        val state = FrameLogic.parseState(newState)
 
-        val updateStatus = CollectionLogic.isValidStateTransition(collection.collection.status, state)
+        val updateStatus = FrameLogic.isValidStateTransition(frame.frame.status, state)
         if (!updateStatus.valid) updateStatus.throwError
 
         if(state == SubjectState.ARCHIVED){
-          ViewerAssertion.assertMaintain(collection.viewers)
+          ViewerAssertion.assertMaintain(frame.viewers)
           //check if all children are closed with success or failure
-          val readyToArchive = CollectionLogic.isReadyToArchive(collection.subjects)
+          val readyToArchive = FrameLogic.isReadyToArchive(frame.subjects)
           if(!readyToArchive.valid) readyToArchive.throwError
         }
 
         for {
-          res <- collectionRepository.updateState(collectionId, state)
-          _ <- newsService.addCollectionEvent(collectionId, NewsType.STATE_CHANGE,
-            collection.viewers.getAllViewingGroups.map(_.id))
+          res <- frameRepository.updateState(frameId, state)
+          _ <- newsService.addFrameEvent(frameId, NewsType.STATE_CHANGE,
+            frame.viewers.getAllViewingGroups.map(_.id))
         } yield res
       })
     } catch {
@@ -203,25 +203,25 @@ class CollectionService @Inject()(typeRepository: TypeRepository,
   }
 
   /**
-   * Get an [[modules.subject.model.ExtendedCollection ExtendedCollection]] together with its
+   * Get an [[modules.subject.model.ExtendedFrame ExtendedFrame]] together with its
    * [[modules.core.model.ExtendedEntityType ExtendedEntityType]] by its id.
-   * <p> A User (given by his ticket) can only request Collections he has access rights to.
+   * <p> A User (given by his ticket) can only request Frames he has access rights to.
    * <p> Fails without WORKER rights.
    * <p> This is a safe implementation and can be used by controller classes.
    *
-   * @param collectionId id of the Collection to fetch
+   * @param frameId id of the Frame to fetch
    * @param ticket       implicit authentication ticket
-   * @return Future[(ExtendedCollection, ExtendedEntityType)]
+   * @return Future[(ExtendedFrame, ExtendedEntityType)]
    */
-  def getCollection(collectionId: Long)(implicit ticket: Ticket): Future[(ExtendedCollection, ExtendedEntityType)] = {
+  def getFrame(frameId: Long)(implicit ticket: Ticket): Future[(ExtendedFrame, ExtendedEntityType)] = {
     try {
       RoleAssertion.assertWorker
       val accessedGroupIds = ticket.accessRights.getAllViewingGroupIds
-      collectionRepository.getCollection(collectionId, accessedGroupIds) flatMap (collectionData => {
-        if (collectionData.isEmpty) throw new Exception("Collection does not exist or missing rights")
-        val extendedCollection = collectionData.get
-        modelCollectionService.getExtendedType(extendedCollection.collection.typeVersionId) map (extendedEntityType => {
-          (extendedCollection, extendedEntityType)
+      frameRepository.getFrame(frameId, accessedGroupIds) flatMap (frameData => {
+        if (frameData.isEmpty) throw new Exception("Frame does not exist or missing rights")
+        val extendedFrame = frameData.get
+        modelFrameService.getExtendedType(extendedFrame.frame.typeVersionId) map (extendedEntityType => {
+          (extendedFrame, extendedEntityType)
         })
       })
     } catch {
@@ -230,24 +230,24 @@ class CollectionService @Inject()(typeRepository: TypeRepository,
   }
 
   /**
-   * Get a [[modules.subject.model.CollectionHeader CollectionHeader]] WITHOUT its children
+   * Get a [[modules.subject.model.FrameHeader FrameHeader]] WITHOUT its children
    * [[modules.subject.model.Subject Subject]] data but together with its
    * [[modules.core.model.Property Properties]] and [[modules.core.model.Viewer Viewers]] by id.
-   * <p> A User (given by his ticket) can only request Collections he has access rights to.
+   * <p> A User (given by his ticket) can only request Frames he has access rights to.
    * <p> Fails without WORKER rights.
    * <p> This is a safe implementation and can be used by controller classes.
    *
-   * @param collectionId id of the Collection to fetch
+   * @param frameId id of the Frame to fetch
    * @param ticket       implicit authentication ticket
-   * @return Future[CollectionHeader]
+   * @return Future[FrameHeader]
    */
-  def getSlimCollection(collectionId: Long)(implicit ticket: Ticket): Future[CollectionHeader] = {
+  def getSlimFrame(frameId: Long)(implicit ticket: Ticket): Future[FrameHeader] = {
     try {
       RoleAssertion.assertWorker
       val accessedGroupIds = ticket.accessRights.getAllViewingGroupIds
-      collectionRepository.getSlimCollection(collectionId, accessedGroupIds) map (collectionOption => {
-        if (collectionOption.isEmpty) throw new Exception("Collection does not exist or missing rights")
-        collectionOption.get
+      frameRepository.getSlimFrame(frameId, accessedGroupIds) map (frameOption => {
+        if (frameOption.isEmpty) throw new Exception("Frame does not exist or missing rights")
+        frameOption.get
       })
     } catch {
       case e: Throwable => Future.failed(e)
@@ -260,63 +260,63 @@ class CollectionService @Inject()(typeRepository: TypeRepository,
    * @param ticket
    * @return
    */
-  def findArchivedCollection(nameQuery: String)(implicit ticket: Ticket): Future[Seq[ArchivedCollection]] = {
+  def findArchivedFrame(nameQuery: String)(implicit ticket: Ticket): Future[Seq[ArchivedFrame]] = {
     try {
       RoleAssertion.assertWorker
       val accessedGroupIds = ticket.accessRights.getAllViewingGroupIds
-      collectionRepository.findArchivedCollections(nameQuery, accessedGroupIds)
+      frameRepository.findArchivedFrames(nameQuery, accessedGroupIds)
     } catch {
       case e: Throwable => Future.failed(e)
     }
   }
 
   /**
-   * Get all [[modules.subject.model.CollectionHeader CollectionHeaders]]
-   * <p> Only Collection data the given User (by ticket) can access is returned.
+   * Get all [[modules.subject.model.FrameHeader FrameHeaders]]
+   * <p> Only Frame data the given User (by ticket) can access is returned.
    * <p> Fails without WORKER rights
    * <p> This is a safe implementation and can be used by controller classes.
    *
-   * @param groupSelector [[modules.user.model.Group Groups]] which must contain the returned Collection data
+   * @param groupSelector [[modules.user.model.Group Groups]] which must contain the returned Frame data
    *                      (must be partition of ticket Groups)
    * @param ticket        implicit authentication ticket
-   * @return Future Seq[CollectionHeader]
+   * @return Future Seq[FrameHeader]
    */
-  def getCollectionHeaders(typeSelector: Option[String] = None, groupSelector: Option[String] = None)(implicit ticket: Ticket):
-  Future[Seq[CollectionHeader]] = {
+  def getFrameHeaders(typeSelector: Option[String] = None, groupSelector: Option[String] = None)(implicit ticket: Ticket):
+  Future[Seq[FrameHeader]] = {
     try {
       RoleAssertion.assertWorker
       var accessedGroupIds = ticket.accessRights.getAllViewingGroupIds
       if (groupSelector.isDefined) {
-        val selectedGroups = CollectionLogic.splitNumericList(groupSelector.get)
+        val selectedGroups = FrameLogic.splitNumericList(groupSelector.get)
         accessedGroupIds = accessedGroupIds.filter(!selectedGroups.contains(_))
       }
       //FIXME handle type selector (best would be a "exclude type" selector)
-      collectionRepository.getCollectionHeaders(accessedGroupIds)
+      frameRepository.getFrameHeaders(accessedGroupIds)
     } catch {
       case e: Throwable => Future.failed(e)
     }
   }
 
   /**
-   * Get all [[modules.subject.model.CollectionHeader CollectionHeaders]] and all
+   * Get all [[modules.subject.model.FrameHeader FrameHeaders]] and all
    * [[modules.core.model.ExtendedEntityType ExtendedEntityTypes]] which define them.
-   * <p> This method calls [[modules.subject.service.CollectionService#getCollectionHeaders]] (see there for more information)
+   * <p> This method calls [[modules.subject.service.FrameService#getFrameHeaders]] (see there for more information)
    * <p> Fails without WORKER rights.
    * <p> This is a safe implementation and can be used by controller classes.
    *
-   * @param groupSelector [[modules.user.model.Group Groups]] which must contain the returned Collection
+   * @param groupSelector [[modules.user.model.Group Groups]] which must contain the returned Frame
    *                      (must be partition of ticket Groups)
    * @param ticket        implicit authentication ticket
-   * @return Future[CollectionTypeComplex]
+   * @return Future[FrameTypeComplex]
    */
-  def getCollectionComplex(typeSelector: Option[String] = None, groupSelector: Option[String] = None)(implicit ticket: Ticket):
-  Future[CollectionTypeComplex] = {
+  def getFrameComplex(typeSelector: Option[String] = None, groupSelector: Option[String] = None)(implicit ticket: Ticket):
+  Future[FrameTypeComplex] = {
     try {
       for {
-        collectionHeaders <- getCollectionHeaders(typeSelector, groupSelector)
-        entityTypes <- entityTypeService.getAllTypes(Some(CollectionConstraintSpec.COLLECTION))
+        frameHeaders <- getFrameHeaders(typeSelector, groupSelector)
+        entityTypes <- entityTypeService.getAllTypes(Some(FrameConstraintSpec.FRAME))
       } yield {
-        CollectionTypeComplex(collectionHeaders, entityTypes)
+        FrameTypeComplex(frameHeaders, entityTypes)
       }
     } catch {
       case e: Throwable => Future.failed(e)
@@ -324,24 +324,24 @@ class CollectionService @Inject()(typeRepository: TypeRepository,
   }
 
   /**
-   * Delete a [[modules.subject.model.Collection Collection]].
+   * Delete a [[modules.subject.model.Frame Frame]].
    * <p> <strong> This will also delete all child [[modules.subject.model.Subject Subjects]]!</strong>
    * <p> This is a safe implementation and can be used by controller classes.
    * <p> Fails without MAINTAINER rights
    *
-   * @param id     of the Collection
+   * @param id     of the Frame
    * @param ticket implicit authentication ticket
    * @return Future[Unit]
    */
-  def deleteCollection(id: Long)(implicit ticket: Ticket): Future[Unit] = {
+  def deleteFrame(id: Long)(implicit ticket: Ticket): Future[Unit] = {
     try {
       RoleAssertion.assertWorker
-      getSlimCollection(id) flatMap (collectionData => {
-        ViewerAssertion.assertMaintain(collectionData.viewers)
+      getSlimFrame(id) flatMap (frameData => {
+        ViewerAssertion.assertMaintain(frameData.viewers)
         for {
-          _ <- collectionRepository.delete(collectionData.collection)
-          _ <- newsService.addCollectionEvent(id, NewsType.DELETED,
-            collectionData.viewers.getAllViewingGroups.map(_.id))
+          _ <- frameRepository.delete(frameData.frame)
+          _ <- newsService.addFrameEvent(id, NewsType.DELETED,
+            frameData.viewers.getAllViewingGroups.map(_.id))
         } yield ()
       })
     } catch {
@@ -350,7 +350,7 @@ class CollectionService @Inject()(typeRepository: TypeRepository,
   }
 
   /**
-   * Forwards to same method of [[modules.subject.service.CollectionLogic CollectionLogic]].
+   * Forwards to same method of [[modules.subject.service.FrameLogic FrameLogic]].
    * <p> This is a safe implementation and can be used by controller classes.
    * <p> Fails without WORKER rights
    *
@@ -358,23 +358,23 @@ class CollectionService @Inject()(typeRepository: TypeRepository,
    * @param ticket      implicit authentication ticket
    * @return Seq[(String, String)] (property key -> data type)
    */
-  def getCollectionPropertyKeys(constraints: Seq[Constraint])(implicit ticket: Ticket): Seq[(String, String)] = {
+  def getFramePropertyKeys(constraints: Seq[Constraint])(implicit ticket: Ticket): Seq[(String, String)] = {
     RoleAssertion.assertWorker
-    CollectionLogic.getPropertyKeys(constraints)
+    FrameLogic.getPropertyKeys(constraints)
   }
 
   /**
-   * Forwards to same method of [[modules.subject.service.CollectionLogic CollectionLogic]].
+   * Forwards to same method of [[modules.subject.service.FrameLogic FrameLogic]].
    * <p> This is a safe implementation and can be used by controller classes.
    * <p> Fails without WORKER rights
    *
-   * @param constraints model of an CollectionType
+   * @param constraints model of an FrameType
    * @param ticket      implicit authentication ticket
    * @return Map[String, String] (property key -> default value)
    */
   def getObligatoryPropertyKeys(constraints: Seq[Constraint])(implicit ticket: Ticket): Map[String, String] = {
     RoleAssertion.assertWorker
-    CollectionLogic.getObligatoryPropertyKeys(constraints)
+    FrameLogic.getObligatoryPropertyKeys(constraints)
   }
 
 }

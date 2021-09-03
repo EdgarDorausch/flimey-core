@@ -27,11 +27,11 @@ class SubjectTable(tag: Tag) extends Table[Subject](tag, "subject") {
 
   def id = column[Long]("id", O.PrimaryKey,O.AutoInc)
   def entityId = column[Long]("entity_id")
-  def collectionId = column[Long]("collection_id")
+  def frameId = column[Long]("frame_id")
   def typeVersionId = column[Long]("type_version_id")
   def state = column[String]("state")
   def created = column[Timestamp]("created")
 
-  override def * = (id, entityId, collectionId, typeVersionId, state, created) <> (Subject.tupledRaw, Subject.unapplyToRaw)
+  override def * = (id, entityId, frameId, typeVersionId, state, created) <> (Subject.tupledRaw, Subject.unapplyToRaw)
 
 }

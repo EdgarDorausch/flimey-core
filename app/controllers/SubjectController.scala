@@ -50,20 +50,20 @@ class SubjectController @Inject()(cc: ControllerComponents,
    * Endpoint to delete a [[modules.subject.model.Subject Subject]].
    * <p> The Subject is deleted permanently and can not be restored!
    *
-   * @param collectionId  id of the parent [[modules.subject.model.Collection Collection]]
+   * @param frameId  id of the parent [[modules.subject.model.Frame Frame]]
    * @param subjectId id of the Subject to delete
-   * @return redirect to the parent Collection view
+   * @return redirect to the parent Frame view
    */
-  def deleteSubject(collectionId: Long, subjectId: Long): Action[AnyContent] =
+  def deleteSubject(frameId: Long, subjectId: Long): Action[AnyContent] =
     withAuthentication.async { implicit request: AuthenticatedRequest[AnyContent] =>
       withTicket { implicit ticket =>
         subjectService.deleteSubject(subjectId) map (_ =>
-          Redirect(routes.CollectionController.getCollection(collectionId))
+          Redirect(routes.FrameController.getFrame(frameId))
           ) recoverWith {
           case e =>
             logger.error(e.getMessage, e)
             Future.successful(
-              Redirect(routes.SubjectController.getSubjectEditor(collectionId, subjectId)
+              Redirect(routes.SubjectController.getSubjectEditor(frameId, subjectId)
               ).flashing("error" -> e.getMessage))
         }
       }
@@ -72,38 +72,38 @@ class SubjectController @Inject()(cc: ControllerComponents,
   /**
    * Endpoint to get the [[modules.subject.model.Subject Subject]] editor with preloaded data.
    *
-   * @param collectionId  id of the parent [[modules.subject.model.Collection Collection]]
+   * @param frameId  id of the parent [[modules.subject.model.Frame Frame]]
    * @param subjectId id of the Subject to delete
    * @return subject editor page with preloaded Subject data
    */
-  def getSubjectEditor(collectionId: Long, subjectId: Long): Action[AnyContent] =
+  def getSubjectEditor(frameId: Long, subjectId: Long): Action[AnyContent] =
     withAuthentication.async { implicit request: AuthenticatedRequest[AnyContent] =>
       withTicket { implicit ticket =>
         val error = request.flash.get("error")
-        updateSubjectEditorFactory(collectionId, subjectId, None, error)
+        updateSubjectEditorFactory(frameId, subjectId, None, error)
       }
     }
 
   /**
    * Endpoint to post (update) the data of the currently edited [[modules.subject.model.Subject Subject]].
    *
-   * @param collectionId  id of the parent [[modules.subject.model.Collection Collection]]
+   * @param frameId  id of the parent [[modules.subject.model.Frame Frame]]
    * @param subjectId id of the Subject to edit
    * @return subject editor page with preloaded Subject data with success or error message
    */
-  def postSubject(collectionId: Long, subjectId: Long): Action[AnyContent] =
+  def postSubject(frameId: Long, subjectId: Long): Action[AnyContent] =
     withAuthentication.async { implicit request: AuthenticatedRequest[AnyContent] =>
       withTicket { implicit ticket =>
         EntityForm.form.bindFromRequest fold(
-          errorForm => updateSubjectEditorFactory(collectionId, subjectId, Option(errorForm)),
+          errorForm => updateSubjectEditorFactory(frameId, subjectId, Option(errorForm)),
           data => {
             subjectService.updateSubject(subjectId, data.values) flatMap (_ => {
-              updateSubjectEditorFactory(collectionId, subjectId, Some(EntityForm.form.fill(data)), None, Option("Changes saved successfully"))
+              updateSubjectEditorFactory(frameId, subjectId, Some(EntityForm.form.fill(data)), None, Option("Changes saved successfully"))
             }) recoverWith {
               case e: Throwable =>
                 logger.error(e.getMessage, e)
                 val newEntityForm = EntityForm.form.fill(data)
-                updateSubjectEditorFactory(collectionId, subjectId, Some(newEntityForm), Option(e.getMessage))
+                updateSubjectEditorFactory(frameId, subjectId, Some(newEntityForm), Option(e.getMessage))
             }
           })
       }
@@ -112,11 +112,11 @@ class SubjectController @Inject()(cc: ControllerComponents,
   /**
    * Endpoint to get the state editor of a [[modules.subject.model.Subject Subject]].
    *
-   * @param collectionId  id of the parent [[modules.subject.model.Collection Collection]]
+   * @param frameId  id of the parent [[modules.subject.model.Frame Frame]]
    * @param subjectId id of the Subject to edit
    * @return subject state editor page
    */
-  def getStateEditor(collectionId: Long, subjectId: Long): Action[AnyContent] =
+  def getStateEditor(frameId: Long, subjectId: Long): Action[AnyContent] =
     withAuthentication.async { implicit request: AuthenticatedRequest[AnyContent] =>
       withTicket { implicit ticket =>
         subjectService.getSubject(subjectId) map (extendedSubject => {
@@ -124,7 +124,7 @@ class SubjectController @Inject()(cc: ControllerComponents,
           val succmsg = request.flash.get("succ")
           Ok(views.html.container.subject.subject_state_graph(extendedSubject.subject, error, succmsg))
         }) recoverWith {
-          case e: Throwable => Future.successful(Redirect(routes.CollectionController.getCollection(collectionId)).flashing("error" -> e.getMessage))
+          case e: Throwable => Future.successful(Redirect(routes.FrameController.getFrame(frameId)).flashing("error" -> e.getMessage))
         }
       }
     }
@@ -132,20 +132,20 @@ class SubjectController @Inject()(cc: ControllerComponents,
   /**
    * Endpoint to update the state of a [[modules.subject.model.Subject Subject]].
    *
-   * @param collectionId  id of the parent [[modules.subject.model.Collection Collection]]
+   * @param frameId  id of the parent [[modules.subject.model.Frame Frame]]
    * @param subjectId id of the Subject to edit
-   * @return Subject state editor page (on error) or redirect to Collection overview
+   * @return Subject state editor page (on error) or redirect to Frame overview
    */
-  def postState(collectionId: Long, subjectId: Long): Action[AnyContent] =
+  def postState(frameId: Long, subjectId: Long): Action[AnyContent] =
     withAuthentication.async { implicit request: AuthenticatedRequest[AnyContent] =>
       withTicket { implicit ticket =>
         SelectValueForm.form.bindFromRequest fold(
-          errorForm => Future.successful(Redirect(routes.SubjectController.getStateEditor(collectionId, subjectId)).flashing("error" -> "Invalid form data")),
+          errorForm => Future.successful(Redirect(routes.SubjectController.getStateEditor(frameId, subjectId)).flashing("error" -> "Invalid form data")),
           data => {
             subjectService.updateState(subjectId, data.value) map (_ => {
-              Redirect(routes.SubjectController.getStateEditor(collectionId, subjectId)).flashing("succ" -> "Changes saved successfully")
+              Redirect(routes.SubjectController.getStateEditor(frameId, subjectId)).flashing("succ" -> "Changes saved successfully")
             }) recoverWith {
-              case e: Throwable => Future.successful(Redirect(routes.SubjectController.getStateEditor(collectionId, subjectId)).flashing("error" -> e.getMessage))
+              case e: Throwable => Future.successful(Redirect(routes.SubjectController.getStateEditor(frameId, subjectId)).flashing("error" -> e.getMessage))
             }
           })
       }
@@ -156,26 +156,26 @@ class SubjectController @Inject()(cc: ControllerComponents,
    * (by a post request via form submit)
    * <p> Redirects to the equivalent get endpoint with prepared typeId.
    *
-   * @param collectionId id of the parent [[modules.subject.model.Collection Collection]]
+   * @param frameId id of the parent [[modules.subject.model.Frame Frame]]
    * @return redirect to getNewSubjectEditor or form with errors
    */
-  def requestNewSubjectEditor(collectionId: Long): Action[AnyContent] =
+  def requestNewSubjectEditor(frameId: Long): Action[AnyContent] =
     withAuthentication.async { implicit request: AuthenticatedRequest[AnyContent] =>
       withTicket { implicit ticket =>
         SelectValueForm.form.bindFromRequest fold(
           errorForm => {
-            Future.successful(Redirect(routes.CollectionController.getCollection(collectionId)).flashing("error" -> "Invalid Subject Type input"))
+            Future.successful(Redirect(routes.FrameController.getFrame(frameId)).flashing("error" -> "Invalid Subject Type input"))
           },
           data => {
             val subjectTypeValue = data.value
             modelSubjectService.getTypeByValue(subjectTypeValue) map (subjectType => {
               if (subjectType.isEmpty) Future.failed(new Exception("No such Subject Type found"))
-              Redirect(routes.SubjectController.getNewSubjectEditor(collectionId, subjectType.get.id))
+              Redirect(routes.SubjectController.getNewSubjectEditor(frameId, subjectType.get.id))
             })
           } recoverWith {
             case e =>
               logger.error(e.getMessage, e)
-              Future.successful(Redirect(routes.CollectionController.getCollection(collectionId)).flashing("error" -> e.getMessage))
+              Future.successful(Redirect(routes.FrameController.getFrame(frameId)).flashing("error" -> e.getMessage))
           })
       }
     }
@@ -184,16 +184,16 @@ class SubjectController @Inject()(cc: ControllerComponents,
    * Endpoint to get an editor to create new [[modules.subject.model.Subject Subjects]].
    * <p> The Editor will only accept Subjects of the previously selected [[modules.core.model.EntityType EntityType]].
    *
-   * @param collectionId id of the parent [[modules.subject.model.Collection Collection]]
+   * @param frameId id of the parent [[modules.subject.model.Frame Frame]]
    * @return new subject editor page
    */
-  def getNewSubjectEditor(collectionId: Long, typeId: Long): Action[AnyContent] =
+  def getNewSubjectEditor(frameId: Long, typeId: Long): Action[AnyContent] =
     withAuthentication.async { implicit request: AuthenticatedRequest[AnyContent] =>
       withTicket { implicit ticket =>
         val newEntityForm = EntityForm.form.fill(EntityForm.Data(Seq(), Seq(), Seq(), Seq()))
         val error = request.flash.get("error")
         val success = request.flash.get("success")
-        newSubjectEditorFactory(collectionId, typeId, newEntityForm, error, success)
+        newSubjectEditorFactory(frameId, typeId, newEntityForm, error, success)
       }
     }
 
@@ -201,25 +201,25 @@ class SubjectController @Inject()(cc: ControllerComponents,
    * Endpoint to add a new [[modules.subject.model.Subject Subject]].
    * <p> The Subject must be of the selected Subject [[modules.core.model.EntityType EntityType]].
    * <p> The incoming form data seq must be in the same order as the previously sent property keys.
-   * <p> The parent [[modules.subject.model.Collection Collection]] must support the child subject.
+   * <p> The parent [[modules.subject.model.Frame Frame]] must support the child subject.
    *
    * @see [[modules.subject.service.SubjectService#addSubject]]
-   * @param collectionId id of the parent [[modules.subject.model.Collection Collection]]
+   * @param frameId id of the parent [[modules.subject.model.Frame Frame]]
    * @return new subject editor (clean or with errors)
    */
-  def addNewSubject(collectionId: Long, typeId: Long): Action[AnyContent] =
+  def addNewSubject(frameId: Long, typeId: Long): Action[AnyContent] =
     withAuthentication.async { implicit request: AuthenticatedRequest[AnyContent] =>
       withTicket { implicit ticket =>
         EntityForm.form.bindFromRequest fold(
-          errorForm => newSubjectEditorFactory(collectionId, typeId, errorForm),
+          errorForm => newSubjectEditorFactory(frameId, typeId, errorForm),
           data => {
-            subjectService.addSubject(collectionId, typeId, data.values) map (_ => {
-              Redirect(routes.SubjectController.getNewSubjectEditor(collectionId, typeId)).flashing("success" -> "Subject successfully created")
+            subjectService.addSubject(frameId, typeId, data.values) map (_ => {
+              Redirect(routes.SubjectController.getNewSubjectEditor(frameId, typeId)).flashing("success" -> "Subject successfully created")
             }) recoverWith {
               case e =>
                 logger.error(e.getMessage, e)
                 val newEntityForm = EntityForm.form.fill(data)
-                newSubjectEditorFactory(collectionId, typeId, newEntityForm, Option(e.getMessage))
+                newSubjectEditorFactory(frameId, typeId, newEntityForm, Option(e.getMessage))
             }
           })
       }
@@ -228,7 +228,7 @@ class SubjectController @Inject()(cc: ControllerComponents,
   /**
    * Helper function to build a 'new subject editor' view based on different configuration parameters.
    *
-   * @param collectionId id of the parent [[modules.subject.model.Collection Collection]]
+   * @param frameId id of the parent [[modules.subject.model.Frame Frame]]
    * @param typeId       id of the [[modules.core.model.EntityType EntityType]]
    * @param form         NewEntityForm, which can be already filled
    * @param errmsg       optional error message
@@ -236,11 +236,11 @@ class SubjectController @Inject()(cc: ControllerComponents,
    * @param request      implicit request context
    * @return new entity editor result future (view)
    */
-  private def newSubjectEditorFactory(collectionId: Long, typeId: Long, form: Form[EntityForm.Data], errmsg: Option[String] = None,
+  private def newSubjectEditorFactory(frameId: Long, typeId: Long, form: Form[EntityForm.Data], errmsg: Option[String] = None,
                                           succmsg: Option[String] = None)(
                                            implicit request: Request[AnyContent], ticket: Ticket): Future[Result] = {
     modelSubjectService.getLatestExtendedType(typeId) map (typeData => {
-      Ok(views.html.container.subject.new_subject_editor(collectionId,
+      Ok(views.html.container.subject.new_subject_editor(frameId,
         typeData.entityType,
         subjectService.getSubjectPropertyKeys(typeData.constraints),
         subjectService.getObligatoryPropertyKeys(typeData.constraints),
@@ -249,20 +249,20 @@ class SubjectController @Inject()(cc: ControllerComponents,
   } recoverWith {
     case e =>
       logger.error(e.getMessage, e)
-      Future.successful(Redirect(routes.CollectionController.getCollection(collectionId)).flashing("error" -> e.getMessage))
+      Future.successful(Redirect(routes.FrameController.getFrame(frameId)).flashing("error" -> e.getMessage))
   }
 
   /**
    * Helper function to build a 'subject editor' view based on different configuration parameters.
    *
-   * @param collectionId  id of the parent [[modules.subject.model.Collection Collection]]
+   * @param frameId  id of the parent [[modules.subject.model.Frame Frame]]
    * @param subjectId id of the [[modules.subject.model.Subject Subject]] to edit
    * @param form          optional prepared form data
    * @param msg           optional error message
    * @param request       implicit request context
-   * @return collection editor page
+   * @return frame editor page
    */
-  private def updateSubjectEditorFactory(collectionId: Long, subjectId: Long, form: Option[Form[EntityForm.Data]],
+  private def updateSubjectEditorFactory(frameId: Long, subjectId: Long, form: Option[Form[EntityForm.Data]],
                                              msg: Option[String] = None, successMsg: Option[String] = None)(
                                               implicit request: Request[AnyContent], ticket: Ticket): Future[Result] = {
     for {
@@ -282,7 +282,7 @@ class SubjectController @Inject()(cc: ControllerComponents,
   } recoverWith {
     case e =>
       logger.error(e.getMessage, e)
-      Future.successful(Redirect(routes.CollectionController.getCollection(collectionId)).flashing("error" -> e.getMessage))
+      Future.successful(Redirect(routes.FrameController.getFrame(frameId)).flashing("error" -> e.getMessage))
   }
 
 }

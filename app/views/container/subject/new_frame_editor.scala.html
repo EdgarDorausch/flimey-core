@@ -19,23 +19,23 @@
 @import modules.core.formdata.EntityForm
 @import views.html.components.utils.{message_box_error, navbar_category_closeable}
 @import views.html.components.utils.message_box_success
+@import modules.user.model.Group
 @import modules.core.model.EntityType
-@import views.html.forms.core.new_pure_entity_form
-@(frameId: Long,
-        selectedType: EntityType,
+@import views.html.forms.core.new_entity_form
+@(selectedType: EntityType,
         propertyKeys: Seq[(String, String)],
         obligatoryKeys: Map[String, String],
+        groups: Seq[Group],
         newEntityForm: Form[EntityForm.Data],
         errmsg: Option[String] = None,
         succmsg: Option[String] = None)(implicit request: RequestHeader, messagesProvider: MessagesProvider, ticket: Ticket)
 
 @app {
-    @navbar_category_closeable(Seq("New", selectedType.value), routes.FrameController.getFrame(frameId))
+    @navbar_category_closeable(Seq("New", selectedType.value), routes.FrameController.index())
 }{
     @message_box_error(errmsg)
     @message_box_success(succmsg)
     <div class="card shadowed p-ltrb-mini">
-        @new_pure_entity_form(selectedType, propertyKeys, obligatoryKeys, newEntityForm,
-            routes.SubjectController.addNewSubject(frameId, selectedType.id))
+        @new_entity_form(selectedType, propertyKeys, obligatoryKeys, groups, newEntityForm, routes.FrameController.addNewFrame(selectedType.id))
     </div>
 }()()()

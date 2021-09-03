@@ -16,14 +16,14 @@
 * You should have received a copy of the GNU General Public License
 * along with this program. If not, see <https://www.gnu.org/licenses/>.
 * *@
-@import modules.subject.model.CollectionHeader
+@import modules.subject.model.FrameHeader
 @import views.html.components.core.viewer_tag_box
 @import views.html.components.core.meta_entity
-@(data: CollectionHeader)(implicit request: RequestHeader, messagesProvider: MessagesProvider)
+@(data: FrameHeader)(implicit request: RequestHeader, messagesProvider: MessagesProvider)
 
 <div class="meta-entity-container card shadowed relative-container p-ltrb-mini m-t-small">
     <div class="float-top-right m-t-mini m-r-mini">
-        <a href="@routes.CollectionController.getCollection(data.collection.id)">
+        <a href="@routes.FrameController.getFrame(data.frame.id)">
             <i class="material-icons fc-prim">open_in_new</i>
         </a>
     </div>
@@ -35,11 +35,11 @@
         }
     </div>
     <div class="flex-container horizontal stretched m-t-small">
-        <div>@data.collection.status</div>
+        <div>@data.frame.status</div>
         <div class="weight-2"></div>
-        <div class="padding-left-10">created at: @data.collection.created.format("dd.MM.yyyy HH:mm")</div>
+        <div class="padding-left-10">created at: @data.frame.created.format("dd.MM.yyyy HH:mm")</div>
     </div>
-    @meta_entity(data.collection.id, data.properties, Some(data.subjects.map(c => (c.subject.typeVersionId, c.properties))))
+    @meta_entity(data.frame.id, data.properties, Some(data.subjects.map(c => (c.subject.typeVersionId, c.properties))))
     <div class="meta-viewport"></div>
     <div class="flex-container full-width horizontal left-align m-t-small">
     @if(data.entityType.isDefined) {

@@ -32,13 +32,13 @@
         successMsg: Option[String] = None)(implicit request: RequestHeader, messagesProvider: MessagesProvider, ticket: Ticket)
 
 @app {
-    @navbar_category_closeable(Seq("Subject Editor"), routes.CollectionController.getCollection(extendedSubject.subject.collectionId))
+    @navbar_category_closeable(Seq("Subject Editor"), routes.FrameController.getFrame(extendedSubject.subject.frameId))
 }{
     @message_box_error(msg)
     @message_box_success(successMsg)
     <div class="card shadowed p-ltrb-mini">
         @edit_pure_entity_form(selectedType, extendedSubject.subject.id, propertyKeys, obligatoryKeys,
-            entityForm, routes.SubjectController.postSubject(extendedSubject.subject.collectionId, extendedSubject.subject.id),
-            routes.SubjectController.deleteSubject(extendedSubject.subject.collectionId, extendedSubject.subject.id))
+            entityForm, routes.SubjectController.postSubject(extendedSubject.subject.frameId, extendedSubject.subject.id),
+            routes.SubjectController.deleteSubject(extendedSubject.subject.frameId, extendedSubject.subject.id))
     </div>
 }()()()

@@ -16,20 +16,24 @@
 * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 * *@
 @import modules.auth.model.Ticket
+@import modules.core.model.EntityType
+@import views.html.forms.subject.frame_query_form
 @import views.html.components.utils.message_box_error
+@import modules.subject.model.FrameHeader
+@import views.html.forms.core.select_type_form
+@import views.html.components.subject.frame_block
 @import views.html.components.utils.navbar_category
-@import modules.subject.model.ArchivedCollection
-@import views.html.forms.core.string_query_form
-@import views.html.components.subject.collection_archive_block
-@(collections: Seq[ArchivedCollection], query: String, msg: Option[String] = None)(
-        implicit request: RequestHeader, messagesProvider: MessagesProvider, ticket: Ticket)
+@(frameTypes: Seq[EntityType],
+        frameData: Seq[FrameHeader],
+        msg: Option[String] = None)(implicit request: RequestHeader, messagesProvider: MessagesProvider, ticket: Ticket)
 
 @app {
-    @navbar_category(Seq("Archive"))
+    @navbar_category(Seq("Dashboard"))
 }{
     @message_box_error(msg)
     <div class="card shadowed p-ltrb-mini">
-        @string_query_form(query, "search archive", routes.ArchiveController.query())
+        @select_type_form(None, frameTypes, routes.FrameController.requestNewFrameEditor(), "New")
     </div>
-    @collection_archive_block(collections)
+    <!--@frame_query_form()-->
+    @frame_block(frameData)
 }()()()

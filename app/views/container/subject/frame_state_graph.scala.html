@@ -22,18 +22,18 @@
 @import modules.user.model.Group
 @import modules.core.model.EntityType
 @import views.html.forms.core.edit_viewable_entity_form
-@import modules.subject.model.CollectionHeader
-@import modules.subject.model.Collection
+@import modules.subject.model.FrameHeader
+@import modules.subject.model.Frame
 @import views.html.forms.subject.change_status_form
-@(collection: Collection, msg: Option[String] = None, successMsg: Option[String] = None)(
+@(frame: Frame, msg: Option[String] = None, successMsg: Option[String] = None)(
         implicit request: RequestHeader, messagesProvider: MessagesProvider, ticket: Ticket)
 
 @app {
-    @navbar_category_closeable(Seq("Status Graph Editor"), routes.CollectionController.getCollection(collection.id))
+    @navbar_category_closeable(Seq("Status Graph Editor"), routes.FrameController.getFrame(frame.id))
 }{
     @message_box_error(msg)
     @message_box_success(successMsg)
     <div class="card shadowed p-l-mini p-r-mini p-t-small p-b-small">
-        @change_status_form(collection.status, routes.CollectionController.postState(collection.id))
+        @change_status_form(frame.status, routes.FrameController.postState(frame.id))
     </div>
 }()()()

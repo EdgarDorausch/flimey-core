@@ -69,35 +69,35 @@ GET     /archive                                            controllers.ArchiveC
 POST    /archive/query                                      controllers.ArchiveController.query()
 
 
-GET     /collection                                         controllers.CollectionController.index()
-POST    /collection/query                                   controllers.CollectionController.findByQuery()
+GET     /frame                                              controllers.FrameController.index()
+POST    /frame/query                                        controllers.FrameController.findByQuery()
 
-GET     /collection/query                                   controllers.CollectionController.getCollections(typeSelector: Option[String] = None, groupSelector: Option[String] = None)
+GET     /frame/query                                        controllers.FrameController.getFrames(typeSelector: Option[String] = None, groupSelector: Option[String] = None)
 
-POST    /collection/new                                     controllers.CollectionController.requestNewCollectionEditor()
-GET     /collection/:typeId/new                             controllers.CollectionController.getNewCollectionEditor(typeId: Long)
-POST    /collection/:typeId/new                             controllers.CollectionController.addNewCollection(typeId: Long)
+POST    /frame/new                                          controllers.FrameController.requestNewFrameEditor()
+GET     /frame/:typeId/new                                  controllers.FrameController.getNewFrameEditor(typeId: Long)
+POST    /frame/:typeId/new                                  controllers.FrameController.addNewFrame(typeId: Long)
 
-GET     /collection/:collectionId                           controllers.CollectionController.getCollection(collectionId: Long)
+GET     /frame/:frameId                                     controllers.FrameController.getFrame(frameId: Long)
 
-GET     /collection/editor/:collectionId                    controllers.CollectionController.getCollectionEditor(collectionId: Long)
-POST    /collection/editor/:collectionId                    controllers.CollectionController.postCollection(collectionId: Long)
-POST    /collection/editor/:collectionId/delete             controllers.CollectionController.deleteCollection(collectionId: Long)
+GET     /frame/editor/:frameId                              controllers.FrameController.getFrameEditor(frameId: Long)
+POST    /frame/editor/:frameId                              controllers.FrameController.postFrame(frameId: Long)
+POST    /frame/editor/:frameId/delete                       controllers.FrameController.deleteFrame(frameId: Long)
 
-GET     /collection/editor/:collectionId/state              controllers.CollectionController.getStateEditor(collectionId: Long)
-POST    /collection/editor/:collectionId/state              controllers.CollectionController.postState(collectionId: Long)
+GET     /frame/editor/:frameId/state                        controllers.FrameController.getStateEditor(frameId: Long)
+POST    /frame/editor/:frameId/state                        controllers.FrameController.postState(frameId: Long)
 
 
-POST    /collection/:collectionId/subject/new                       controllers.SubjectController.requestNewSubjectEditor(collectionId: Long)
-GET     /collection/:collectionId/subject/:typeId/new               controllers.SubjectController.getNewSubjectEditor(collectionId: Long, typeId: Long)
-POST    /collection/:collectionId/subject/:typeId/new               controllers.SubjectController.addNewSubject(collectionId: Long, typeId: Long)
+POST    /frame/:frameId/subject/new                         controllers.SubjectController.requestNewSubjectEditor(frameId: Long)
+GET     /frame/:frameId/subject/:typeId/new                 controllers.SubjectController.getNewSubjectEditor(frameId: Long, typeId: Long)
+POST    /frame/:frameId/subject/:typeId/new                 controllers.SubjectController.addNewSubject(frameId: Long, typeId: Long)
 
-GET     /collection/editor/:collectionId/subject/:subjectId         controllers.SubjectController.getSubjectEditor(collectionId: Long, subjectId: Long)
-POST    /collection/editor/:collectionId/subject/:subjectId         controllers.SubjectController.postSubject(collectionId: Long, subjectId: Long)
-POST    /collection/editor/:collectionId/subject/:subjectId/delete  controllers.SubjectController.deleteSubject(collectionId: Long, subjectId: Long)
+GET     /frame/editor/:frameId/subject/:subjectId           controllers.SubjectController.getSubjectEditor(frameId: Long, subjectId: Long)
+POST    /frame/editor/:frameId/subject/:subjectId           controllers.SubjectController.postSubject(frameId: Long, subjectId: Long)
+POST    /frame/editor/:frameId/subject/:subjectId/delete    controllers.SubjectController.deleteSubject(frameId: Long, subjectId: Long)
 
-GET     /collection/editor/:collectionId/subject/:subjectId/state   controllers.SubjectController.getStateEditor(collectionId: Long, subjectId: Long)
-POST    /collection/editor/:collectionId/subject/:subjectId/state   controllers.SubjectController.postState(collectionId: Long, subjectId: Long)
+GET     /frame/editor/:frameId/subject/:subjectId/state     controllers.SubjectController.getStateEditor(frameId: Long, subjectId: Long)
+POST    /frame/editor/:frameId/subject/:subjectId/state     controllers.SubjectController.postState(frameId: Long, subjectId: Long)
 
 
 GET     /management                                         controllers.ManagementController.index()

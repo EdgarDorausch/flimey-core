@@ -22,7 +22,7 @@
 
 <div class="meta-entity-container card shadowed relative-container p-ltrb-mini m-t-small">
     <div class="float-top-right">
-        <a href="@routes.SubjectController.getSubjectEditor(data.subject.collectionId, data.subject.id)">
+        <a href="@routes.SubjectController.getSubjectEditor(data.subject.frameId, data.subject.id)">
             <i class="material-icons fc-prim">create</i>
         </a>
     </div>
@@ -36,7 +36,7 @@
     </div>
     <div class="flex-container horizontal left-align m-t-small">
         <div>status: @data.subject.state </div>
-        <a href="@routes.SubjectController.getStateEditor(data.subject.collectionId, data.subject.id)">
+        <a href="@routes.SubjectController.getStateEditor(data.subject.frameId, data.subject.id)">
             <i class="material-icons fc-prim">swap_horiz</i>
         </a>
     </div>

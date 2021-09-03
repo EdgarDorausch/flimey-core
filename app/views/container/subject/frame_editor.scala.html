@@ -9,33 +9,37 @@
 *
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 * GNU General Public License for more details.
 *
 * You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <https://www.gnu.org/licenses/>.
+* along with this program. If not, see <https://www.gnu.org/licenses/>.
 * *@
 @import modules.auth.model.Ticket
-@import modules.core.formdata.EntityForm
 @import views.html.components.utils.{message_box_error, navbar_category_closeable}
+@import modules.core.formdata.EntityForm
 @import views.html.components.utils.message_box_success
 @import modules.user.model.Group
 @import modules.core.model.EntityType
-@import views.html.forms.core.new_entity_form
+@import views.html.forms.core.edit_viewable_entity_form
+@import modules.subject.model.FrameHeader
 @(selectedType: EntityType,
+        frameData: FrameHeader,
         propertyKeys: Seq[(String, String)],
         obligatoryKeys: Map[String, String],
         groups: Seq[Group],
-        newEntityForm: Form[EntityForm.Data],
-        errmsg: Option[String] = None,
-        succmsg: Option[String] = None)(implicit request: RequestHeader, messagesProvider: MessagesProvider, ticket: Ticket)
+        entityForm: Form[EntityForm.Data],
+        msg: Option[String] = None,
+        successMsg: Option[String] = None)(implicit request: RequestHeader, messagesProvider: MessagesProvider, ticket: Ticket)
 
 @app {
-    @navbar_category_closeable(Seq("New", selectedType.value), routes.CollectionController.index())
+    @navbar_category_closeable(Seq("Frame Editor"), routes.FrameController.getFrame(frameData.frame.id))
 }{
-    @message_box_error(errmsg)
-    @message_box_success(succmsg)
+    @message_box_error(msg)
+    @message_box_success(successMsg)
     <div class="card shadowed p-ltrb-mini">
-        @new_entity_form(selectedType, propertyKeys, obligatoryKeys, groups, newEntityForm, routes.CollectionController.addNewCollection(selectedType.id))
+        @edit_viewable_entity_form(selectedType, frameData.frame.id, propertyKeys, obligatoryKeys, groups,
+            frameData.viewers, entityForm, routes.FrameController.postFrame(frameData.frame.id),
+            routes.FrameController.deleteFrame(frameData.frame.id))
     </div>
 }()()()

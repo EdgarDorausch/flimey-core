@@ -22,15 +22,15 @@ import modules.core.model.{EntityType, Property}
 import modules.user.model.ViewerCombinator
 
 /**
- * The CollectionHeader extends the [[modules.subject.model.Collection Collection]] class how it is commonly used with
+ * The FrameHeader extends the [[modules.subject.model.Frame Frame]] class how it is commonly used with
  * all of its objectified [[modules.core.model.Property Properties]] and some additional child data.
  *
- * @param collection   Collection head (contains only id and type reference)
+ * @param frame   Frame head (contains only id and type reference)
  * @param subjects child [[modules.subject.model.SubjectHeader SubjectHeaders]]
- * @param properties   all Properties of the Collection
+ * @param properties   all Properties of the Frame
  * @param viewers      [[modules.user.model.ViewerCombinator ViewerCombinator]] with Viewer rights
  */
-case class CollectionHeader(collection: Collection,
+case class FrameHeader(frame: Frame,
                             subjects: Seq[SubjectHeader],
                             properties: Seq[Property],
                             viewers: ViewerCombinator,

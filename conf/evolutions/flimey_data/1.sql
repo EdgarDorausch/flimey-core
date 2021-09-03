@@ -51,7 +51,7 @@ create table type_constraint
     FOREIGN KEY (type_version_id) REFERENCES type_version (id)
 );
 
-create table collection
+create table frame
 (
     id              SERIAL       NOT NULL PRIMARY KEY,
     type_version_id BIGINT       NOT NULL,
@@ -66,13 +66,13 @@ create table subject
 (
     id              SERIAL       NOT NULL PRIMARY KEY,
     entity_id       BIGINT       NOT NULL,
-    collection_id   BIGINT       NOT NULL,
+    frame_id        BIGINT       NOT NULL,
     type_version_id BIGINT       NOT NULL,
     state           VARCHAR(255) NOT NULL,
     created         TIMESTAMP    NOT NULL,
     FOREIGN KEY (entity_id) REFERENCES flimey_entity (id),
     FOREIGN KEY (type_version_id) REFERENCES type_version (id),
-    FOREIGN KEY (collection_id) REFERENCES collection (id)
+    FOREIGN KEY (frame_id) REFERENCES frame (id)
 );
 
 
@@ -190,7 +190,7 @@ drop table property;
 drop table type_constraint;
 drop table asset;
 drop table subject;
-drop table collection;
+drop table frame;
 drop table type_version;
 drop table entity_type;
 drop table flimey_entity;

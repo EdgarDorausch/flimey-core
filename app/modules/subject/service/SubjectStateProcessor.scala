@@ -28,7 +28,7 @@ trait SubjectStateProcessor extends SuperSubjectStateProcessor {
 
   override def isValidStateTransition(oldState: SubjectState.State, newState: SubjectState.State): Status = {
     if(newState == SubjectState.CREATED) return ERR("This state can not be entered again")
-    if(newState == SubjectState.ARCHIVED) return ERR("Subjects can not be archived independently from their Collection")
+    if(newState == SubjectState.ARCHIVED) return ERR("Subjects can not be archived independently from their Frame")
     OK()
   }
 

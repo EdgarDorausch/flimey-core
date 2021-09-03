@@ -23,16 +23,16 @@ import modules.core.model.{EntityType, Property}
 import modules.user.model.ViewerCombinator
 
 /**
- * The extended [[modules.subject.model.Collection Collection]] class how it is commonly used with all its objectified
+ * The extended [[modules.subject.model.Frame Frame]] class how it is commonly used with all its objectified
  * [[modules.core.model.Property Properties]] and all available child data.
  *
- * @param collection   Collection head (contains only id and type reference)
+ * @param frame   Frame head (contains only id and type reference)
  * @param subjects child [[modules.subject.model.SubjectHeader SubjectHeaders]]
- * @param properties   all Properties of the Collection
- * @param attachments  all attached [[modules.asset.model.Asset Assets]] of the Collection (not of the Subjects)
+ * @param properties   all Properties of the Frame
+ * @param attachments  all attached [[modules.asset.model.Asset Assets]] of the Frame (not of the Subjects)
  * @param viewers      [[modules.user.model.ViewerCombinator ViewerCombinator]] with Viewer rights
  */
-case class ExtendedCollection(collection: Collection,
+case class ExtendedFrame(frame: Frame,
                               subjects: Seq[SubjectHeader],
                               properties: Seq[Property],
                               attachments: Seq[Asset],
