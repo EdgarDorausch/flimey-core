@@ -2,7 +2,7 @@
 
 echo "starting the flimey core service"
 
-echo "check postgres 12 installation"
+echo "check postgres 13 installation"
 
 service postgresql stop
 
@@ -11,7 +11,7 @@ if [ ! -f "/flimeydata/moved.txt" ]; then
 	chown postgres:postgres /flimeydata
 	chmod 700 /flimeydata
 	apt-get -y install rsync
-	rsync -av /var/lib/postgresql/12/main /flimeydata
+	rsync -av /var/lib/postgresql/13/main /flimeydata
 	touch /flimeydata/moved.txt
 fi
 
@@ -19,7 +19,7 @@ if [ ! -f "/var/lib/postgresql/reconfigured.txt" ]; then
 	echo "configure postgres to use the data directory on mounted volume"
 	chown postgres:postgres /flimeydata
 	chmod 700 /flimeydata
-	sed -i "s:/var/lib/postgresql/12/main:/flimeydata/main:g" /etc/postgresql/12/main/postgresql.conf
+	sed -i "s:/var/lib/postgresql/13/main:/flimeydata/main:g" /etc/postgresql/13/main/postgresql.conf
 	touch /var/lib/postgresql/reconfigured.txt
 fi
 
