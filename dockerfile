@@ -19,7 +19,7 @@ RUN sbt dist;
 
 
 
-FROM ubuntu:20.04
+FROM adoptopenjdk/openjdk14:jdk-14.0.2_12-ubuntu-slim
 
 EXPOSE 9080
 EXPOSE 9443
@@ -32,9 +32,10 @@ WORKDIR /flimey
 
 COPY --from=0 /flimeytmp /flimeytmp
 
+ARG DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update
 RUN apt-get -y install unzip
-RUN apt-get -y install openjdk-14-jre
 RUN apt-get -y install postgresql
 RUN apt-get -y install sudo; adduser root sudo
 
