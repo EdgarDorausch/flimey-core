@@ -16,20 +16,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  * */
 
-package modules.subject.service
+package modules.subject.model
 
-import modules.subject.model.SubjectState
-import modules.util.messages.{ERR, OK, Status}
+import modules.core.model.EntityType
 
 /**
- * Trait which provides functionality for parsing and processing the [[modules.subject.model.SubjectState SubjectState]].
+ * The FrameTypeComplex is a helper class to wrap several [[modules.subject.model.FrameHeader FrameHeaders]]
+ * together with all [[modules.core.model.ExtendedEntityType ExtendedEntityTypes]] which define [[modules.subject.model.Frame Frames]].
+ *
+ * @param frames   FrameHeaders
+ * @param frameTypes all EntityTypes which define Frames
  */
-trait SubjectStateProcessor extends SuperSubjectStateProcessor {
-
-  override def isValidStateTransition(oldState: SubjectState.State, newState: SubjectState.State): Status = {
-    if(newState == SubjectState.CREATED) return ERR("This state can not be entered again")
-    if(newState == SubjectState.ARCHIVED) return ERR("Subjects can not be archived independently from their Frame")
-    OK()
-  }
-
-}
+case class FrameTypeComplex(frames: Seq[FrameHeader], frameTypes: Seq[EntityType])

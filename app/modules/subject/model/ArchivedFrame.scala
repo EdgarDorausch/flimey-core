@@ -16,20 +16,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  * */
 
-package modules.subject.service
+package modules.subject.model
 
-import modules.subject.model.SubjectState
-import modules.util.messages.{ERR, OK, Status}
+import modules.core.model.Property
 
 /**
- * Trait which provides functionality for parsing and processing the [[modules.subject.model.SubjectState SubjectState]].
+ * TODO add doc
+ * @param frame
+ * @param properties
  */
-trait SubjectStateProcessor extends SuperSubjectStateProcessor {
-
-  override def isValidStateTransition(oldState: SubjectState.State, newState: SubjectState.State): Status = {
-    if(newState == SubjectState.CREATED) return ERR("This state can not be entered again")
-    if(newState == SubjectState.ARCHIVED) return ERR("Subjects can not be archived independently from their Frame")
-    OK()
-  }
-
-}
+case class ArchivedFrame(frame: Frame, properties: Seq[Property])

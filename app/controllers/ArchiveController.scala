@@ -21,7 +21,7 @@ package controllers
 import javax.inject.{Inject, Singleton}
 import middleware.{AuthenticatedRequest, Authentication, AuthenticationFilter}
 import modules.core.formdata.StringQueryForm
-import modules.subject.service.CollectionService
+import modules.subject.service.FrameService
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc._
@@ -30,16 +30,16 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 /**
- * Controller to provide all required endpoints to manage archived [[modules.subject.model.Collection Collections]]
+ * Controller to provide all required endpoints to manage archived [[modules.subject.model.Frame Frames]]
  *
  * @param cc                     injected ControllerComponents (provides methods and implicits)
  * @param withAuthentication     injected [[middleware.AuthenticationFilter AuthenticationFilter]] to handle session verification
- * @param collectionService      injected [[modules.subject.service.CollectionService CollectionService]]
+ * @param frameService      injected [[modules.subject.service.FrameService FrameService]]
  */
 @Singleton
 class ArchiveController @Inject()(cc: ControllerComponents,
                                   withAuthentication: AuthenticationFilter,
-                                  collectionService: CollectionService) extends
+                                  frameService: FrameService) extends
   AbstractController(cc) with I18nSupport with Logging with Authentication {
 
   /**
@@ -52,16 +52,16 @@ class ArchiveController @Inject()(cc: ControllerComponents,
     withAuthentication.async { implicit request: AuthenticatedRequest[AnyContent] =>
       withTicket { implicit ticket =>
         if (!query.isEmpty) {
-          collectionService.findArchivedCollection(query) map (collections => {
-            Ok(views.html.container.subject.collection_archive(collections, query))
+          frameService.findArchivedFrame(query) map (frames => {
+            Ok(views.html.container.subject.frame_archive(frames, query))
           }) recoverWith {
             case e =>
               logger.error(e.getMessage, e)
-              Future.successful(Ok(views.html.container.subject.collection_archive(Seq(), query, Some(e.getMessage))))
+              Future.successful(Ok(views.html.container.subject.frame_archive(Seq(), query, Some(e.getMessage))))
           }
         } else {
           val error = request.flash.get("error")
-          Future.successful(Ok(views.html.container.subject.collection_archive(Seq(), "", error)))
+          Future.successful(Ok(views.html.container.subject.frame_archive(Seq(), "", error)))
         }
       }
     }

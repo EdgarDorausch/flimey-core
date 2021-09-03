@@ -25,8 +25,8 @@
     @CSRF.formField
     <div class="flex-container full-width vertical m-t-small">
     <input type="text" name="email" id="input-nasf" placeholder="email" value="@authForm.data("email")"/>
-    <input class="m-t-mini" type="text" name="key" id="input-nasf" placeholder="key" value="@authForm.data("key")"/>
-    <input class="m-t-mini" type="text" name="password" id="input-nasf" placeholder="password" value="@authForm.data("password")"/>
+    <input class="m-t-mini" type="password" name="key" id="input-nasf" placeholder="key" value="@authForm.data("key")"/>
+    <input class="m-t-mini" type="password" name="password" id="input-nasf" placeholder="password" value="@authForm.data("password")"/>
     <div class="m-t-mini">
         <input id="cb-agree" class="checkbox" type="checkbox" name="agree" @if(authForm.data.contains("agree") && authForm.data("agree").toBoolean){checked="true"} value="true"/>
         <label for="cb-agree"> I agree to the Terms and Conditions </label>

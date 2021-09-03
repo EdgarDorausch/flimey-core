@@ -131,7 +131,7 @@ class ModelAssetService @Inject()(typeRepository: TypeRepository,
    * @see [[modules.core.service.ModelEntityService#getTypeByValue]]
    * @param value  value filed (name) of the searched EntityType
    * @param ticket implicit authentication ticket
-   * @return Future Option[CollectionType]
+   * @return Future Option[FrameType]
    */
   override def getTypeByValue(value: String)(implicit ticket: Ticket): Future[Option[EntityType]] = {
     entityTypeService.getEntityTypeByValue(value, Option(AssetConstraintSpec.ASSET))

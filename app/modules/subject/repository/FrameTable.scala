@@ -16,20 +16,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  * */
 
-package modules.subject.service
+package modules.subject.repository
+import java.sql.Timestamp
 
-import modules.subject.model.SubjectState
-import modules.util.messages.{ERR, OK, Status}
+import modules.subject.model.Frame
+import slick.jdbc.PostgresProfile.api._
 
-/**
- * Trait which provides functionality for parsing and processing the [[modules.subject.model.SubjectState SubjectState]].
- */
-trait SubjectStateProcessor extends SuperSubjectStateProcessor {
+class FrameTable(tag: Tag) extends Table[Frame](tag, "frame") {
 
-  override def isValidStateTransition(oldState: SubjectState.State, newState: SubjectState.State): Status = {
-    if(newState == SubjectState.CREATED) return ERR("This state can not be entered again")
-    if(newState == SubjectState.ARCHIVED) return ERR("Subjects can not be archived independently from their Frame")
-    OK()
-  }
+  def id = column[Long]("id", O.PrimaryKey,O.AutoInc)
+  def entityId = column[Long]("entity_id")
+  def typeVersionId = column[Long]("type_version_id")
+  def status = column[String]("status")
+  def created = column[Timestamp]("created")
+
+  override def * = (id, entityId, typeVersionId, status, created) <> (Frame.tupledRaw, Frame.unapplyToRaw)
 
 }

@@ -16,20 +16,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  * */
 
-package modules.subject.service
+package modules.subject.repository
 
-import modules.subject.model.SubjectState
-import modules.util.messages.{ERR, OK, Status}
+import java.sql.Timestamp
 
-/**
- * Trait which provides functionality for parsing and processing the [[modules.subject.model.SubjectState SubjectState]].
- */
-trait SubjectStateProcessor extends SuperSubjectStateProcessor {
+import modules.subject.model.Subject
+import slick.jdbc.PostgresProfile.api._
 
-  override def isValidStateTransition(oldState: SubjectState.State, newState: SubjectState.State): Status = {
-    if(newState == SubjectState.CREATED) return ERR("This state can not be entered again")
-    if(newState == SubjectState.ARCHIVED) return ERR("Subjects can not be archived independently from their Frame")
-    OK()
-  }
+class SubjectTable(tag: Tag) extends Table[Subject](tag, "subject") {
+
+  def id = column[Long]("id", O.PrimaryKey,O.AutoInc)
+  def entityId = column[Long]("entity_id")
+  def frameId = column[Long]("frame_id")
+  def typeVersionId = column[Long]("type_version_id")
+  def state = column[String]("state")
+  def created = column[Timestamp]("created")
+
+  override def * = (id, entityId, frameId, typeVersionId, state, created) <> (Subject.tupledRaw, Subject.unapplyToRaw)
 
 }

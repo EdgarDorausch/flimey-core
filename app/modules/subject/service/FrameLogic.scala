@@ -18,18 +18,9 @@
 
 package modules.subject.service
 
-import modules.subject.model.SubjectState
-import modules.util.messages.{ERR, OK, Status}
+import modules.core.util.PropertyProcessor
+import modules.user.service.ViewerProcessor
 
-/**
- * Trait which provides functionality for parsing and processing the [[modules.subject.model.SubjectState SubjectState]].
- */
-trait SubjectStateProcessor extends SuperSubjectStateProcessor {
-
-  override def isValidStateTransition(oldState: SubjectState.State, newState: SubjectState.State): Status = {
-    if(newState == SubjectState.CREATED) return ERR("This state can not be entered again")
-    if(newState == SubjectState.ARCHIVED) return ERR("Subjects can not be archived independently from their Frame")
-    OK()
-  }
+object FrameLogic extends FrameConstraintProcessor with PropertyProcessor with ViewerProcessor with SuperSubjectStateProcessor {
 
 }
