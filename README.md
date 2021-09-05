@@ -4,6 +4,8 @@
 
 **A self hosted business and productivity board tool with organization management and runtime enabled structural modeling.**
 
+Also have a look at our 15 minutes [YouTube Playlist](https://youtube.com/playlist?list=PLoFJ1Ykl2Gmyvzp6vOjk95xiQkF0kWsek) explaining the basics of flimey and showing it in action.
+
 ## Release Notes
 
 *This project is work in progress. We still need some time to implement major features bevore going in a production release cycle. As of now, the latest somewhat stable beta versions are published occasionally via the ``release/latest`` branch. This will always create a new ``latest`` release in our Google Container Registry (which is private as of right now, on request we will set it to public for a limited time frame). Of course, the docker image can also be build by yourself. DO ABSOLUTELY NOT USE THOSE BUILDS IN PRODUCTION, THEY ARE JUST MEANT FOR TESTING.*
