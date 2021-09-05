@@ -6,16 +6,22 @@
 
 ## Release Notes
 
-*This project is work in progress. We still need some time to implement major features bevore going in a production release cycle. As of now, the latest somewhat stable beta versions are puplished occasionally via the ``release/latest`` branch. This will always create a new ``latest`` release in our dockerhub repository [flimeylab](https://hub.docker.com/repository/docker/flimeylab/flimey-core). DO ABSOLUTELY NOT USE THOSE BUILDS IN PRODUCTION, THEY ARE JUST MEANT FOR TESTING.*
+*This project is work in progress. We still need some time to implement major features bevore going in a production release cycle. As of now, the latest somewhat stable beta versions are published occasionally via the ``release/latest`` branch. This will always create a new ``latest`` release in our Google Container Registry (which is private as of right now, on request we will set it to public for a limited time frame). Of course, the docker image can also be build by yourself. DO ABSOLUTELY NOT USE THOSE BUILDS IN PRODUCTION, THEY ARE JUST MEANT FOR TESTING.*
 
 **To install the container the first time, execute the following two lines. The http site will be available at port 9080. See our wiki (link below) for first usage instructions.**
 
 ```
 docker volume create flimeydata
-docker run -it --name=flimey --mount source=flimeydata,destination=/flimeydata -p 9080:9080 -p 9443:9443 flimey-core
+docker run -it --name=flimey --mount source=flimeydata,destination=/flimeydata -p 9080:9080 -p 9443:9443 [image-name:tag]
 ```
 
-> :zap: The container can be created without mounting a volume. By doing so THE CONTAINER CAN NOT BE UPDATED IN THE FUTURE WITHOUT DATA LOSS!
+If you do not have access to a prebuild docker image, build it yourself from the source root where the dockerfile is located with
+```
+docker build -t flimeyco .
+```
+If you have touched any files, we do not quarantee that this will work locally!
+
+> ⚡ The container can be created without mounting a volume. By doing so THE CONTAINER CAN NOT BE UPDATED IN THE FUTURE WITHOUT DATA LOSS!
 
 > ⚡ A once created flimeydata volume can be mounted to newer container versions (after an update).
 However, do not mount the same volume to two running containers at once! Right now, we do not guarantee data compatability with newer versions.
@@ -55,6 +61,8 @@ Our project kanban with open issues and development progress can be found [here]
 * Database management with Slick 3 on top of PostgreSQL
 * Testing with Scala-Test (scalatestplayplus)
 * CI with Github-Actions
+
+A fully capable test stack working locally and within the CI to test unit and integration - also database operations is setup and works just fine. However as of right now, there are no real tests yet.
 
 ## Contribute
 
