@@ -40,12 +40,28 @@ class EntityTypeService @Inject()(typeRepository: TypeRepository, constraintRepo
    * @param ticket implicit authentication ticket
    * @return Future[Long]
    */
-  def addType(name: String, typeOf: String)(implicit ticket: Ticket): Future[Long] = {
+  def addType(name: String, typeOf: String)(implicit ticket: Ticket): Future[Unit] = {
     try {
       RoleAssertion.assertModeler
       if (!CoreLogic.isStringIdentifier(name)) throw new Exception("Invalid identifier")
-      //FIXME the input data must be validated, especially the typeOf value must match an actual type!
-      typeRepository.add(EntityType(0, name, typeOf, active = false))
+      //FIXME the typeOf value must match an actual type!
+
+      typeRepository.add(EntityType(0, name, typeOf, active = false)) map (typeVersionId => {
+
+        //FIXME this is really bad code, somewhere must be already constraints for those values, else add them to the core package
+        if (typeOf == "frame" || typeOf == "subject") {
+          //add default WithName Plugin here
+          //this is implemented very generally to prepare for future extensions
+          val withNamePluginConstraint = Constraint(0, ConstraintType.UsesPlugin, PluginType.WithName.toString, "", None, typeVersionId)
+          val newConstraints = CoreLogic.applyConstraint(withNamePluginConstraint) map (c =>
+            Constraint(c.id, c.c, c.v1, c.v2, c.byPlugin, typeVersionId))
+
+          //This is pretty unsafe but because a new type has never an entity, this works
+          Future.sequence(newConstraints.map(constraintRepository.addConstraint)).flatMap(_ => Future.unit)
+        } else {
+          Future.unit
+        }
+      })
     } catch {
       case e: Throwable => Future.failed(e)
     }

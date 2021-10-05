@@ -50,13 +50,13 @@ class TypeRepository @Inject()(@NamedDatabase("flimey_data") protected val dbCon
    * <p> This adds also a new [[modules.core.model.TypeVersion TypeVersion]] with version number 0.
    *
    * @param entityType new EntityType entity
-   * @return new id future
+   * @return new id of the created TypeVersion future
    */
   def add(entityType: EntityType): Future[Long] = {
     db.run((for {
       newTypeId <- (types returning types.map(_.id)) += entityType
-      _ <- (typeVersions returning typeVersions.map(_.id)) += TypeVersion(0, newTypeId, 1)
-    } yield newTypeId).transactionally)
+      newTypeVersionId <- (typeVersions returning typeVersions.map(_.id)) += TypeVersion(0, newTypeId, 1)
+    } yield newTypeVersionId).transactionally)
   }
 
   def addVersion(typeVersion: TypeVersion, newConstraints: Seq[Constraint]): Future[Long] = {
