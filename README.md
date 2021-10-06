@@ -51,6 +51,8 @@ A detailled documentation can be found [here](https://github.com/flimeyio/flimey
 
 The development setup/getting started guide can also be found [here](https://github.com/flimeyio/flimey-core/wiki/System-Setup).
 
+Developer instructions are stated [here](https://github.com/flimeyio/flimey-core/wiki/Architecture-and-Design-Guidelines).
+
 ## Devlopment Stack
 
 * Scala as our main programming language
