@@ -1,6 +1,7 @@
 /*
  * This file is part of the flimey-core software.
  * Copyright (C) 2021 Karl Kegel
+ * Copyright (C) 2021 Edgar Dorausch
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,8 +23,8 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatestplus.play.PlaySpec
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.Application
+import org.scalatestplus.play.guice.GuiceFakeApplicationFactory
+import play.api.{Application, Play}
 import play.api.db.DBApi
 import play.api.db.evolutions.{Evolutions, SimpleEvolutionsReader}
 import play.api.inject.Injector
@@ -39,11 +40,11 @@ import play.api.test.Injecting
  *
  * <p> <strong> Before and after each test suite, the database will be reset automatically! </strong>
  */
-abstract class FlimeyIntegrationSpec extends PlaySpec with ScalaFutures with BeforeAndAfterAll with GuiceOneAppPerSuite with Injecting {
+abstract class FlimeyIntegrationSpec extends PlaySpec with ScalaFutures with BeforeAndAfterAll with GuiceFakeApplicationFactory with Injecting {
 
   import play.api.db.evolutions.ThisClassLoaderEvolutionsReader.evolutions
 
-  implicit override val patienceConfig = PatienceConfig(timeout = Span(2, Seconds), interval = Span(20, Millis))
+  implicit override val patienceConfig: PatienceConfig = PatienceConfig(timeout = Span(2, Seconds), interval = Span(20, Millis))
 
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder().configure(Map(
@@ -55,7 +56,8 @@ abstract class FlimeyIntegrationSpec extends PlaySpec with ScalaFutures with Bef
       "slick.dbs.flimey_session.db.password" -> "developer"
     )).build()
 
-  val injector: Injector = fakeApplication().injector
+  val app: Application = fakeApplication()
+  val injector: Injector = app.injector
 
   override def beforeAll(): Unit = {
     super.beforeAll()

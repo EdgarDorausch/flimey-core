@@ -6,6 +6,7 @@ version := "0"
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 resolvers += "Atlassian Releases" at "https://maven.atlassian.com/public/"
+parallelExecution in Test := false
 
 libraryDependencies ++= Seq(
   guice,
