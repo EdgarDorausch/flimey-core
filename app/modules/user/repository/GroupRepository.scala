@@ -109,5 +109,14 @@ class GroupRepository @Inject()(@NamedDatabase("flimey_data") protected val dbCo
     } yield ()).transactionally)
   }
 
+  /**
+   * Update an existing Group.
+   *
+   * @param group Group entity to update
+   * @return result future
+   */
+  def update(group: Group): Future[Int] = {
+    db.run(groups.filter(_.id === group.id).update(group))
+  }
 
 }

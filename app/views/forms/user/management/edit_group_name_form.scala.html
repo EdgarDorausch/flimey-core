@@ -1,0 +1,35 @@
+@*
+* This file is part of the flimey-core software.
+* Copyright (C) 2021 Edgar Dorausch
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <https://www.gnu.org/licenses/>.
+* *@
+@import views.html.helper.CSRF
+@import views.html.components.utils.message_box_error
+@import modules.user.formdata.RenameGroupForm
+@import modules.core.model.ViewerRole
+@(groupId: Long, renameGroupForm: Form[RenameGroupForm.Data], msg: Option[String])(implicit request: RequestHeader, messagesProvider: MessagesProvider)
+
+@helper.form(action = routes.ManagementController.postRenameGroup(groupId)) {
+    @CSRF.formField
+    @message_box_error(msg)
+    @if(renameGroupForm.error("newName").isDefined){
+        <div>@message_box_error(Option("Invalid group name"))</div>
+    }
+    <div class="flex-container horizontal full-width stretched">
+        <div class="col-3">New Name</div>
+        <input class="weight-2" type="text" name="newName" placeholder="Group Name" value="@renameGroupForm.data("newName")"/>
+        <button class="btn btn-solid-prim btn-small">Rename</button>
+    </div>
+}

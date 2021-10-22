@@ -42,6 +42,8 @@ class GroupService @Inject()(groupRepository: GroupRepository,
                              userRepository: UserRepository,
                              groupViewerRepository: GroupViewerRepository) {
 
+
+
   /**
    * Get all existing Groups<br />
    * This is a safe implementation and can be used by controller classes.
@@ -137,8 +139,46 @@ class GroupService @Inject()(groupRepository: GroupRepository,
     }
   }
 
-  //TODO
-  // def renameGroup()
+
+  /**
+   * Update a Group.<br />
+   * SYSTEM and PUBLIC group can not be changed.
+   * The new group name should not already be used
+   * <p> This is a safe implementation and can be used by controller classes.
+   * <p> Fails without ADMIN rights
+   *
+   * @param groupId Id of the group
+   * @param newName new name of the group
+   * @param ticket implicit authentication ticket
+   * @return Future[Int]
+   */
+  def updateGroup(groupId: Long, newName: String)(implicit ticket: Ticket): Future[Int] = {
+    try {
+      val _newName = newName.toLowerCase
+      RoleAssertion.assertAdmin
+      groupRepository.getById(groupId).flatMap(
+        groupOption => {
+          val group = groupOption match {
+            case Some(g) => g
+            case None => throw new Exception("No such group found")
+          }
+          // Check if group is SYSTEM or PUBLIC group
+          if(group.name == "system" || group.name == "public") throw new Exception("This group is not allowed to be renamed!")
+
+          groupRepository.getAll.flatMap(
+            groups => if (groups.exists(_.name == _newName)) throw new Exception("Group with this name already exists!") else {
+              val groupUpdate = Group(groupId, _newName)
+              groupRepository.update(groupUpdate)
+            }
+          )
+
+        }
+      )
+    } catch {
+      case e: Throwable => Future.failed(e)
+    }
+  }
+
 
   /**
    * Delete a Group by its id.<br />

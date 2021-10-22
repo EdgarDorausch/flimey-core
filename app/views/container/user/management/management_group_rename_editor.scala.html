@@ -1,0 +1,45 @@
+@*
+* This file is part of the flimey-core software.
+* Copyright (C) 2021  Edgar Dorausch
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <https://www.gnu.org/licenses/>.
+* *@
+@import modules.auth.model.Ticket
+@import views.html.components.utils.message_box_error
+@import views.html.components.utils.navbar_category
+@import views.html.components.utils.management_nav
+@import views.html.components.utils.navbar_category_closeable
+@import modules.user.model.ViewerCombinator
+@import views.html.components.user.group_relation_block
+@import modules.user.formdata.RenameGroupForm
+@import views.html.forms.user.management.edit_group_name_form
+@import views.html.components.user.group_detail_view
+@import modules.user.model.Group
+@(group: Group, groupViewerCombinator: ViewerCombinator, newGroupViewerForm: Form[RenameGroupForm.Data], msg: Option[String] = None)(
+        implicit request: RequestHeader, messagesProvider: MessagesProvider, ticket: Ticket)
+
+@app {
+  @navbar_category(Seq("Admin Area"))
+}{
+  @management_nav()
+}{
+  @navbar_category_closeable(Seq("Group Rename Editor"), routes.ManagementController.getGroups())
+}{
+  @message_box_error(msg)
+  <div class="card shadowed p-ltrb-mini m-b-medium">
+    @group_detail_view(group)
+    @edit_group_name_form(group.id, newGroupViewerForm, None)
+  </div>
+  @group_relation_block(groupViewerCombinator, group.id)
+}()

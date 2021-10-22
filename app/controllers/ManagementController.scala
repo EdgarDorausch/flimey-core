@@ -312,6 +312,27 @@ class ManagementController @Inject()(cc: ControllerComponents,
   }
 
   /**
+   * Endpoint to get the editor of the rename editor for groups
+   *
+   * @param groupId Id of the group
+   * @return management view html with group rename editor
+   */
+  def getGroupRenameEditor(groupId: Long): Action[AnyContent] = withAuthentication.async { implicit request: AuthenticatedRequest[AnyContent] =>
+    withTicket { implicit ticket =>
+      groupService.getGroup(groupId) flatMap (group => {
+        groupService.getFirstClassGroupViewers(groupId) map (groupViewerRelation => {
+          val error = request.flash.get("error")
+          val emptyForm = RenameGroupForm.form.fill(RenameGroupForm.Data(""))
+          Ok(views.html.container.user.management.management_group_rename_editor(group, groupViewerRelation, emptyForm, error))
+        })
+      }) recoverWith {
+        case e =>
+          logger.error(e.getMessage, e)
+          Future.successful(Redirect(routes.ManagementController.getGroups()).flashing("error" -> e.getMessage))
+      }
+    }
+  }
+  /**
    * Endpoint to add a new member (User) to a Group.<br />
    * Invalid form data leads to a returned editor page with empty form and error messages.
    *
@@ -406,6 +427,37 @@ class ManagementController @Inject()(cc: ControllerComponents,
   }
 
   /**
+   * Endpoint responsible for renaming an existing group.
+   * User needs sufficient rights to do this.
+   * Invalid form data leads to a returned editor page with empty form and error messages.
+   *
+   * @param groupId id of the Group
+   * @return redirect to group editor
+   */
+  def postRenameGroup(groupId: Long): Action[AnyContent] = withAuthentication.async {
+    implicit request: AuthenticatedRequest[AnyContent] =>
+    withTicket { implicit ticket =>
+      RenameGroupForm.form.bindFromRequest.fold(
+        // On Error
+        errorForm => groupService.getGroup(groupId).flatMap(
+          group => groupService.getFirstClassGroupViewers(groupId).map(
+              groupViewerCombinator => Ok(views.html.container.user.management.management_group_rename_editor(group, groupViewerCombinator, errorForm, None))
+          )),
+        // On Success
+        data => {
+          groupService.updateGroup(groupId, data.newName).map(
+            _ => Redirect(routes.ManagementController.getGroups())
+          ).recoverWith {
+            case e =>
+              logger.error(e.getMessage, e)
+              Future.successful(Redirect(routes.ManagementController.getGroupRenameEditor(groupId)).flashing("error" -> e.getMessage))
+          }
+        }
+      )
+    }
+  }
+
+  /**
    * Delete Group(Viewer) relation.
    *
    * @param groupId  id of the viewed Group
@@ -492,5 +544,6 @@ class ManagementController @Inject()(cc: ControllerComponents,
       }
     }
   }
+
 
 }
