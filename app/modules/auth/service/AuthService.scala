@@ -98,7 +98,7 @@ class AuthService @Inject()(userRepository: UserRepository,
     try {
       val (sessionKey, sessionId) = AuthLogic.resolveCompoundKey(sessionCompoundKey)
       sessionRepository.getComplete(sessionId) map (authInfo => {
-        if (authInfo.isEmpty) throw new Exception("No valid Login")
+        if (authInfo.isEmpty) throw new Exception("No valid session found. You may have to log in again.")
         val (authSession, accesses) = authInfo.get
         if (authSession.session != sessionKey) throw new Exception("Invalid Session")
         val accessViewerCombinator = AuthLogic.generateViewerCombinatorFromAccessRights(accesses)

@@ -20,11 +20,17 @@ package modules.auth.repository
 
 import modules.auth.model.{Access, AuthSession}
 import com.google.inject.Inject
+import org.joda.time.{DateTime, LocalDate}
+import play.api.Logger
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import play.db.NamedDatabase
 import slick.jdbc.JdbcProfile
 import slick.jdbc.PostgresProfile.api._
+import slick.lifted.OptionMapper2
+import slick.lifted.OptionMapper2.plain
 
+import java.sql.Timestamp
+import java.time.LocalDateTime
 import scala.concurrent.{ExecutionContext, Future}
 
 /**
@@ -101,6 +107,16 @@ class SessionRepository @Inject()(@NamedDatabase("flimey_session") protected val
       _ <- accesses.filter(_.sessionId in sessions.filter(_.userId === userId).map(_.id)).delete
       _ <- sessions.filter(_.userId === userId).delete
     } yield ()).transactionally)
+  }
+
+  /**
+   * Deletes every auth_session (and access respectively) whose creation date is before the given one
+   * @param timestamp Threshold date for deleting
+   */
+  def deleteAllBeforeTimestamp(timestamp: Timestamp): Future[Int] = {
+    val timestampStr = timestamp.toString
+    val x = sqlu"""DELETE FROM auth_session WHERE created < TIMESTAMP '#$timestampStr'"""
+    db.run(x)
   }
 
 }
