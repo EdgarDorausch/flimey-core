@@ -1,6 +1,7 @@
 /*
  * This file is part of the flimey-core software.
  * Copyright (C) 2020-2021 Karl Kegel
+ * Copyright (C) 2021 Edgar Dorausch
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +34,7 @@ create table access (
     group_id BIGINT NOT NULL,
     group_name VARCHAR(255) NOT NULL,
     role VARCHAR(255) NOT NULL,
-    FOREIGN KEY(session_id) REFERENCES auth_session(id)
+    FOREIGN KEY(session_id) REFERENCES auth_session(id) ON DELETE CASCADE
 );
 
 -- !Downs

@@ -21,10 +21,12 @@ package middleware
 import modules.auth.service.AuthService
 import com.google.inject.Inject
 import controllers.routes
-import play.api.Logging
+import play.api.{Configuration, Logger, Logging}
 import play.api.mvc.Results.Redirect
 import play.api.mvc._
 
+import java.sql.Timestamp
+import java.time.LocalDateTime
 import scala.concurrent.{ExecutionContext, Future}
 
 /**
@@ -41,13 +43,17 @@ import scala.concurrent.{ExecutionContext, Future}
  * @param parser request body parser (uses default implementations)
  * @param executionContext future execution context (uses implicit default implementation)
  */
-class AuthenticationFilter @Inject()(authService: AuthService, val parser: BodyParsers.Default)(implicit val executionContext: ExecutionContext)
+class AuthenticationFilter @Inject()(authService: AuthService, val parser: BodyParsers.Default, config: Configuration)(implicit val executionContext: ExecutionContext)
   extends ActionBuilder[AuthenticatedRequest, AnyContent] with Authentication with Logging {
 
   override def invokeBlock[A](request: Request[A], block: AuthenticatedRequest[A] => Future[Result]): Future[Result] = {
     val sessionKey = getSessionKey[A](request)
     if (sessionKey.isDefined) {
       authService.getTicket(sessionKey.get) flatMap (ticket => {
+        // Checks if session lifetime  exceeded the configured period of validity
+        if (ticket.authSession.created.before(Timestamp.valueOf(LocalDateTime.now().minusNanos(config.getNanos("flimey.auth.autoLogoutTime")))))
+          throw new Exception("Session expired. Please log in again.")
+
         block(new AuthenticatedRequest(ticket, request))
       }) recoverWith {
         case e =>
