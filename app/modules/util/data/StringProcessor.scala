@@ -1,6 +1,7 @@
 /*
  * This file is part of the flimey-core software.
  * Copyright (C) 2020-2021 Karl Kegel
+ * Copyright (C) 2021 Edgar Dorausch
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,7 +47,7 @@ trait StringProcessor {
    */
   def isNumericString(value: String): Boolean = {
     value.isBlank ||
-      value.matches("^(([0-9]+(\\.|\\,)?)+)$".r.regex)
+      value.matches("^([\\-,+](?=\\d))?(([0-9]*([.,])?\\d)+)([e,E][\\-+]\\d+)?$".r.regex)
   }
 
   def isDateTimeString(value: String): Boolean = {
@@ -58,7 +59,7 @@ trait StringProcessor {
         toDate(value)
         true
       }catch {
-        case e: Throwable => return false
+        case e: Throwable => false
       }
     }
   }
